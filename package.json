@@ -1,0 +1,30 @@
+{
+  "name": "agentstack-directory",
+  "version": "1.0.0",
+  "description": "The Definitive AI Agent Directory - Discover, Compare & Deploy AI Agents",
+  "scripts": {
+    "dev": "serve . -p 4000",
+    "build": "echo 'Static site - no build needed'",
+    "start": "serve . -p 3000",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "directory",
+    "marketplace"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "main": "index.html",
+  "type": "commonjs",
+  "dependencies": {
+    "serve": "^14.2.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
+  }
+}

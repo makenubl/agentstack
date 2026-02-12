@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentStack — The Definitive AI Agent Directory | Discover, Compare & Deploy AI Agents</title>
+  <meta name="description" content="Discover 500+ AI agents for coding, sales, customer support, marketing, and more. Compare pricing, features, and reviews. Find the perfect AI agent for your business.">
+  <meta name="keywords" content="AI agents, AI agent directory, autonomous AI, coding agents, sales agents, customer support AI, AI marketplace">
+  <meta property="og:title" content="AgentStack — The Definitive AI Agent Directory">
+  <meta property="og:description" content="Discover, compare, and deploy the best AI agents. 500+ agents across 8 categories.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Skip to content (accessibility) -->
+  <a href="#agents" class="skip-link">Skip to directory</a>
+
+  <!-- Background Effects -->
+  <div class="grid-bg" aria-hidden="true"></div>
+  <div class="glow-orb orb-1" aria-hidden="true"></div>
+  <div class="glow-orb orb-2" aria-hidden="true"></div>
+  <div class="glow-orb orb-3" aria-hidden="true"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a class="nav-logo" href="#" onclick="window.scrollTo({top:0,behavior:'smooth'}); return false;" aria-label="AgentStack home">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="url(#bolt-grad)" stroke="url(#bolt-grad)" stroke-width="0.5"/>
+            <defs><linearGradient id="bolt-grad" x1="3" y1="2" x2="21" y2="22"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+          </svg>
+        </div>
+        <span>Agent<span class="logo-accent">Stack</span></span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#categories">Categories</a></li>
+        <li><a href="#featured">Featured</a></li>
+        <li><a href="#agents">Directory</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="nav-cta" onclick="openSubmitModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Submit Agent
+        </button>
+        <button class="nav-hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <div class="hero-badge reveal">
+        <span class="badge-dot"></span>
+        The #1 AI Agent Directory — Updated Daily
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <h1 class="hero-title reveal">
+        Discover the<br>
+        <span class="hero-gradient">AI Agents</span> that<br>
+        power the future
+      </h1>
+      <p class="hero-subtitle reveal">
+        The most comprehensive directory of autonomous AI agents.<br class="hide-mobile">
+        Compare, evaluate, and deploy across 9 categories.
+      </p>
+      <div class="search-wrapper reveal">
+        <div class="search-box" id="search-box">
+          <div class="search-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <input type="text" id="search-input" placeholder="Search agents, categories, or companies..." autocomplete="off" aria-label="Search agents">
+          <div class="search-kbd hide-mobile"><kbd>⌘</kbd><kbd>K</kbd></div>
+          <button id="search-btn" aria-label="Search">Search<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+        </div>
+      </div>
+      <div class="search-tags reveal">
+        <span class="tag-label">Popular:</span>
+        <button class="search-tag" onclick="searchFor('coding')"><span class="tag-dot" style="background:#a78bfa"></span>Coding</button>
+        <button class="search-tag" onclick="searchFor('sales')"><span class="tag-dot" style="background:#f472b6"></span>Sales</button>
+        <button class="search-tag" onclick="searchFor('customer support')"><span class="tag-dot" style="background:#34d399"></span>Support</button>
+        <button class="search-tag" onclick="searchFor('research')"><span class="tag-dot" style="background:#60a5fa"></span>Research</button>
+        <button class="search-tag" onclick="searchFor('open source')"><span class="tag-dot" style="background:#fbbf24"></span>Open Source</button>
+      </div>
+      <div class="stats-bar reveal">
+        <div class="stat"><div class="stat-number" data-count="500">0</div><div class="stat-label">AI Agents</div></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><div class="stat-number" data-count="9">0</div><div class="stat-label">Categories</div></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><div class="stat-number" data-count="50">0</div><div class="stat-label">K+ Monthly Users</div></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><div class="stat-number" data-count="10">0</div><div class="stat-label">K+ Reviews</div></div>
+      </div>
+      <div class="trusted-bar reveal">
+        <span class="trusted-label">Trusted by teams at</span>
+        <div class="trusted-logos">
+          <span>Google</span><span>Meta</span><span>Stripe</span><span>Vercel</span><span>Linear</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section class="section" id="categories">
+    <div class="section-inner">
+      <div class="section-header reveal">
+        <div class="section-label"><span class="section-dot"></span>Browse Categories</div>
+        <h2>Find agents by use case</h2>
+        <p class="section-desc">Explore 9 curated categories of autonomous AI agents</p>
+      </div>
+      <div class="categories-grid" id="categories-grid"></div>
+    </div>
+  </section>
+
+  <!-- Featured -->
+  <section class="section section-alt" id="featured">
+    <div class="section-inner">
+      <div class="section-header reveal">
+        <div class="section-label"><span class="section-dot gold"></span>Featured</div>
+        <h2>Editor's picks</h2>
+        <p class="section-desc">Hand-picked agents leading the autonomous AI revolution</p>
+      </div>
+      <div class="agents-grid" id="featured-grid"></div>
+    </div>
+  </section>
+
+  <!-- All Agents -->
+  <section class="section" id="agents">
+    <div class="section-inner">
+      <div class="section-header reveal">
+        <div class="section-label"><span class="section-dot cyan"></span>Directory</div>
+        <h2>All AI Agents</h2>
+        <p class="section-desc">Browse our complete collection</p>
+      </div>
+      <div class="filter-bar reveal" id="filter-bar">
+        <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">🌐 All</button>
+        <button class="filter-btn" data-filter="coding" onclick="setFilter('coding')">💻 Coding</button>
+        <button class="filter-btn" data-filter="customer-support" onclick="setFilter('customer-support')">🎧 Support</button>
+        <button class="filter-btn" data-filter="sales" onclick="setFilter('sales')">📈 Sales</button>
+        <button class="filter-btn" data-filter="marketing" onclick="setFilter('marketing')">📣 Marketing</button>
+        <button class="filter-btn" data-filter="research" onclick="setFilter('research')">🔬 Research</button>
+        <button class="filter-btn" data-filter="personal-assistant" onclick="setFilter('personal-assistant')">🤖 Assistants</button>
+        <button class="filter-btn" data-filter="workflow-automation" onclick="setFilter('workflow-automation')">⚡ Automation</button>
+        <button class="filter-btn" data-filter="data-analysis" onclick="setFilter('data-analysis')">📊 Data</button>
+        <button class="filter-btn" data-filter="open-source" onclick="setFilter('open-source')">🔓 Open Source</button>
+      </div>
+      <div class="sort-bar reveal" id="sort-bar">
+        <span class="sort-label">Sort by:</span>
+        <button class="sort-btn active" data-sort="default" onclick="setSort('default')">Default</button>
+        <button class="sort-btn" data-sort="rating" onclick="setSort('rating')">⭐ Top Rated</button>
+        <button class="sort-btn" data-sort="reviews" onclick="setSort('reviews')">🔥 Most Reviewed</button>
+        <button class="sort-btn" data-sort="newest" onclick="setSort('newest')">🆕 Newest</button>
+        <button class="sort-btn" data-sort="name" onclick="setSort('name')">A→Z Name</button>
+      </div>
+      <div class="agents-grid" id="all-agents-grid"></div>
+      <div class="results-count" id="results-count"></div>
+    </div>
+  </section>
+
+  <!-- Compare Bar (floating) -->
+  <div class="compare-bar" id="compare-bar" aria-live="polite">
+    <div class="compare-bar-inner">
+      <div class="compare-bar-left">
+        <span class="compare-badge" id="compare-count">0</span>
+        <span class="compare-text">agents selected</span>
+      </div>
+      <div class="compare-bar-chips" id="compare-chips"></div>
+      <div class="compare-bar-actions">
+        <button class="compare-btn-clear" onclick="clearCompare()">Clear</button>
+        <button class="compare-btn-go" onclick="openCompareModal()">Compare Now →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing -->
+  <section class="section section-alt" id="pricing">
+    <div class="section-inner">
+      <div class="section-header reveal">
+        <div class="section-label"><span class="section-dot green"></span>For Agent Builders</div>
+        <h2>Get discovered by thousands</h2>
+        <p class="section-desc">List your AI agent and reach decision-makers looking for solutions</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="pricing-card reveal">
+          <div class="pricing-card-inner">
+            <div class="pricing-tier">Basic</div>
+            <div class="pricing-price">Free<span class="pricing-sub">forever</span></div>
+            <p class="pricing-desc">Get your foot in the door</p>
+            <ul class="pricing-features">
+              <li><span class="check green">✓</span>Basic listing</li>
+              <li><span class="check green">✓</span>Category placement</li>
+              <li><span class="check green">✓</span>Website link</li>
+              <li><span class="check green">✓</span>Pricing display</li>
+              <li><span class="check green">✓</span>Up to 4 tags</li>
+            </ul>
+            <button class="pricing-btn" onclick="openSubmitModal()">Get Started Free</button>
+          </div>
+        </div>
+        <div class="pricing-card popular reveal">
+          <div class="popular-badge">Most Popular</div>
+          <div class="pricing-card-inner">
+            <div class="pricing-tier accent">Featured</div>
+            <div class="pricing-price">$49<span>/mo</span></div>
+            <p class="pricing-desc">Stand out from the crowd</p>
+            <ul class="pricing-features">
+              <li><span class="check accent">✓</span>Everything in Basic</li>
+              <li><span class="check accent">✓</span>⚡ Featured badge</li>
+              <li><span class="check accent">✓</span>Homepage spotlight</li>
+              <li><span class="check accent">✓</span>Priority placement</li>
+              <li><span class="check accent">✓</span>Analytics dashboard</li>
+              <li><span class="check accent">✓</span>Up to 8 tags</li>
+            </ul>
+            <button class="pricing-btn primary" onclick="openSubmitModal()">Get Featured →</button>
+          </div>
+        </div>
+        <div class="pricing-card reveal">
+          <div class="pricing-card-inner">
+            <div class="pricing-tier gold">Premium</div>
+            <div class="pricing-price">$149<span>/mo</span></div>
+            <p class="pricing-desc">Maximum visibility & leads</p>
+            <ul class="pricing-features">
+              <li><span class="check gold">✓</span>Everything in Featured</li>
+              <li><span class="check gold">✓</span>🏆 Premium badge</li>
+              <li><span class="check gold">✓</span>Top of search</li>
+              <li><span class="check gold">✓</span>Comparison pages</li>
+              <li><span class="check gold">✓</span>Lead capture CTA</li>
+              <li><span class="check gold">✓</span>Social promotion</li>
+              <li><span class="check gold">✓</span>Monthly report</li>
+            </ul>
+            <button class="pricing-btn" onclick="openSubmitModal()">Go Premium</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="section" id="newsletter">
+    <div class="section-inner">
+      <div class="newsletter-card reveal">
+        <div class="newsletter-glow" aria-hidden="true"></div>
+        <div class="newsletter-content">
+          <div class="newsletter-icon">📬</div>
+          <h2>The AI Agent Weekly</h2>
+          <p>Get the top 5 new AI agents, industry trends, and exclusive deals delivered to your inbox every Friday. Trusted by 12,000+ builders.</p>
+          <form class="newsletter-form" onsubmit="handleNewsletter(event)">
+            <input type="email" name="email" placeholder="you@company.com" required aria-label="Email for newsletter">
+            <button type="submit">Subscribe Free <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+          </form>
+          <p class="newsletter-note">No spam. Unsubscribe anytime.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section section-alt">
+    <div class="section-inner">
+      <div class="cta-card reveal">
+        <div class="cta-glow" aria-hidden="true"></div>
+        <div class="cta-content">
+          <h2>Built an AI Agent?</h2>
+          <p>Join hundreds of AI builders. Get discovered by thousands of decision-makers. Free to list.</p>
+          <div class="cta-actions">
+            <button class="cta-btn-primary" onclick="openSubmitModal()">Submit Your Agent <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+            <a href="#pricing" class="cta-btn-ghost">View pricing →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a class="nav-logo footer-logo" href="#">
+            <div class="logo-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="url(#bf2)"/><defs><linearGradient id="bf2" x1="3" y1="2" x2="21" y2="22"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs></svg></div>
+            <span>Agent<span class="logo-accent">Stack</span></span>
+          </a>
+          <p class="footer-tagline">The definitive directory for AI agents.</p>
+        </div>
+        <div class="footer-links-grid">
+          <div class="footer-col"><h4>Directory</h4><a href="#categories">Categories</a><a href="#featured">Featured</a><a href="#agents">All Agents</a></div>
+          <div class="footer-col"><h4>Company</h4><a href="#">About</a><a href="#">Blog</a><a href="#">Contact</a></div>
+          <div class="footer-col"><h4>Legal</h4><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 AgentStack. All rights reserved.</span>
+        <div class="footer-socials">
+          <a href="#" aria-label="Twitter">𝕏</a><a href="#" aria-label="GitHub">GH</a><a href="#" aria-label="LinkedIn">in</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Agent Detail Modal -->
+  <div class="modal-overlay" id="agent-modal" role="dialog" aria-modal="true" aria-label="Agent details">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Agent Details</h2>
+        <button class="modal-close" onclick="closeModal('agent-modal')" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="modal-body" id="agent-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Submit Modal -->
+  <div class="modal-overlay" id="submit-modal" role="dialog" aria-modal="true" aria-label="Submit agent">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Submit Your AI Agent</h2>
+        <button class="modal-close" onclick="closeModal('submit-modal')" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <p class="form-intro">Get in front of thousands of potential customers. Basic listings are free forever.</p>
+        <form onsubmit="handleSubmit(event)">
+          <div class="form-row">
+            <div class="form-group"><label>Agent Name <span class="req">*</span></label><input type="text" name="name" placeholder="e.g. My AI Agent" required></div>
+            <div class="form-group"><label>Company <span class="req">*</span></label><input type="text" name="company" placeholder="e.g. Your Company" required></div>
+          </div>
+          <div class="form-group"><label>Tagline <span class="req">*</span></label><input type="text" name="tagline" placeholder="Short one-liner (max 80 chars)" required maxlength="80"></div>
+          <div class="form-group"><label>Description <span class="req">*</span></label><textarea name="description" placeholder="What does your agent do?" required></textarea></div>
+          <div class="form-row">
+            <div class="form-group"><label>Category <span class="req">*</span></label><select name="category" required><option value="">Select…</option><option value="coding">💻 Coding</option><option value="customer-support">🎧 Support</option><option value="sales">📈 Sales</option><option value="marketing">📣 Marketing</option><option value="research">🔬 Research</option><option value="personal-assistant">🤖 Assistants</option><option value="workflow-automation">⚡ Automation</option><option value="data-analysis">📊 Data</option><option value="open-source">🔓 Open Source</option></select></div>
+            <div class="form-group"><label>Pricing <span class="req">*</span></label><input type="text" name="pricing" placeholder="e.g. From $20/mo" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Website <span class="req">*</span></label><input type="url" name="website" placeholder="https://…" required></div>
+            <div class="form-group"><label>Email <span class="req">*</span></label><input type="email" name="email" placeholder="you@company.com" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Tags</label><input type="text" name="tags" placeholder="coding, automation, no-code"></div>
+            <div class="form-group"><label>Tier</label><select name="tier"><option value="free">Basic — Free</option><option value="featured">⚡ Featured — $49/mo</option><option value="premium">🏆 Premium — $149/mo</option></select></div>
+          </div>
+          <button type="submit" class="form-submit">Submit for Review <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compare Modal -->
+  <div class="modal-overlay" id="compare-modal" role="dialog" aria-modal="true" aria-label="Compare agents">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h2>Compare AI Agents</h2>
+        <button class="modal-close" onclick="closeModal('compare-modal')" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="modal-body" id="compare-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Back to top -->
+  <button class="back-to-top" id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="data/agents.js"></script>
+  <script src="js/app.js"></script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"AgentStack","url":"https://agentstack.directory","description":"The Definitive AI Agent Directory","potentialAction":{"@type":"SearchAction","target":"https://agentstack.directory/?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
+</body>
+</html>
