@@ -4,9 +4,13 @@
    ==================================== */
 'use strict';
 
+/* ---- Alias: data/agents.js exports AGENTS & CATEGORIES ---- */
+const agents = (typeof AGENTS !== 'undefined') ? AGENTS : [];
+const categories = (typeof CATEGORIES !== 'undefined') ? CATEGORIES : [];
+
 /* ---- State ---- */
 let currentFilter = 'all';
-let currentSort = 'featured';
+let currentSort = 'default';
 let compareList = [];
 const MAX_COMPARE = 4;
 let testimonialIndex = 0;
@@ -24,11 +28,11 @@ const testimonials = [
 
 /* ---- Activity Feed Data ---- */
 const activityTemplates = [
-  { action:'just viewed', agents:['Devin','Cursor AI','AutoGPT','GitHub Copilot','Tabnine','Replit Agent'] },
-  { action:'signed up to list', agents:['their coding agent','a new research assistant','an AI writer'] },
-  { action:'compared', agents:['Devin vs Cursor AI','AutoGPT vs BabyAGI','Copilot vs Tabnine'] },
-  { action:'submitted a review for', agents:['Devin','GitHub Copilot','Jasper AI','Midjourney'] },
-  { action:'purchased Featured listing for', agents:['CodeWhisperer','Phind','Sweep AI'] },
+  { action:'just viewed', items:['Devin','Cursor Agent','AutoGPT','GitHub Copilot Workspace','Tabnine','Replit Agent'] },
+  { action:'signed up to list', items:['their coding agent','a new research assistant','an AI writer'] },
+  { action:'compared', items:['Devin vs Cursor Agent','AutoGPT vs BabyAGI','Copilot vs Tabnine'] },
+  { action:'submitted a review for', items:['Devin','GitHub Copilot Workspace','Jasper AI','Salesforce Agentforce'] },
+  { action:'purchased Featured listing for', items:['CodeWhisperer','Phind','Sweep AI'] },
 ];
 const activityNames = ['Sarah','Marcus','Priya','James','Lisa','David','Emma','Alex','Jordan','Taylor','Morgan','Casey','Riley','Sam','Chris'];
 const activityLocations = ['San Francisco','New York','London','Berlin','Tokyo','Toronto','Sydney','Singapore','Paris','Austin'];
@@ -93,22 +97,19 @@ function setupActivityFeed() {
     const tmpl = activityTemplates[Math.floor(Math.random() * activityTemplates.length)];
     const name = activityNames[Math.floor(Math.random() * activityNames.length)];
     const loc = activityLocations[Math.floor(Math.random() * activityLocations.length)];
-    const agent = tmpl.agents[Math.floor(Math.random() * tmpl.agents.length)];
+    const item = tmpl.items[Math.floor(Math.random() * tmpl.items.length)];
     const color = activityColors[Math.floor(Math.random() * activityColors.length)];
     const el = document.createElement('div');
     el.className = 'activity-item';
     el.innerHTML = `
       <div class="activity-avatar" style="background:${color}">${name[0]}</div>
-      <div class="activity-text"><strong>${name}</strong> from ${loc} ${tmpl.action} <strong>${agent}</strong></div>
+      <div class="activity-text"><strong>${name}</strong> from ${loc} ${tmpl.action} <strong>${item}</strong></div>
       <span class="activity-time">Just now</span>
     `;
     container.appendChild(el);
-    // Remove after animation
     setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 5500);
-    // Keep max 2
     while (container.children.length > 2) container.removeChild(container.firstChild);
   }
-  // First after 3s, then every 6-10s
   setTimeout(showActivity, 3000);
   setInterval(showActivity, 7000 + Math.random() * 3000);
 }
@@ -120,7 +121,7 @@ function animateLiveCount() {
   let count = 2847;
   el.textContent = count.toLocaleString();
   setInterval(() => {
-    const delta = Math.floor(Math.random() * 30) - 12; // -12 to +17
+    const delta = Math.floor(Math.random() * 30) - 12;
     count = Math.max(2400, Math.min(3200, count + delta));
     el.textContent = count.toLocaleString();
   }, 4000);
@@ -141,7 +142,6 @@ function renderTestimonials() {
       </div>
     </div>
   `).join('');
-  // Dots
   const pageCount = getTestimonialPageCount();
   dotsC.innerHTML = '';
   for (let i = 0; i < pageCount; i++) {
@@ -151,10 +151,8 @@ function renderTestimonials() {
     dot.addEventListener('click', () => goToTestimonial(i));
     dotsC.appendChild(dot);
   }
-  // Auto-advance
   testimonialTimer = setInterval(() => {
-    const next = (testimonialIndex + 1) % pageCount;
-    goToTestimonial(next);
+    goToTestimonial((testimonialIndex + 1) % pageCount);
   }, 5000);
 }
 function getTestimonialPageCount() {
@@ -165,11 +163,12 @@ function getTestimonialPageCount() {
 function goToTestimonial(idx) {
   const track = document.getElementById('testimonial-track');
   const dotsC = document.getElementById('testimonial-dots');
-  if (!track) return;
+  if (!track || !track.firstElementChild) return;
   testimonialIndex = idx;
   const w = window.innerWidth;
   const perPage = w <= 768 ? 1 : w <= 1100 ? 2 : 3;
-  const cardWidth = track.firstElementChild ? track.firstElementChild.offsetWidth + 24 : 0; // 24 = gap
+  const gap = 24;
+  const cardWidth = track.firstElementChild.offsetWidth + gap;
   track.style.transform = `translateX(-${idx * perPage * cardWidth}px)`;
   if (dotsC) {
     dotsC.querySelectorAll('.testimonial-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
@@ -180,7 +179,6 @@ function goToTestimonial(idx) {
 function startCountdown() {
   const el = document.getElementById('countdown');
   if (!el) return;
-  // End = midnight tonight
   function getEndTime() {
     const now = new Date();
     const end = new Date(now);
@@ -221,15 +219,10 @@ function setup3DTilt() {
     const y = e.clientY - rect.top;
     const cx = rect.width / 2;
     const cy = rect.height / 2;
-    const rotY = ((x - cx) / cx) * 4; // max 4deg
+    const rotY = ((x - cx) / cx) * 4;
     const rotX = ((cy - y) / cy) * 4;
     card.style.transform = `translateY(-8px) scale(1.01) perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
   });
-  document.addEventListener('mouseleave', e => {
-    if (e.target.classList && e.target.classList.contains('agent-card')) {
-      e.target.style.transform = '';
-    }
-  }, true);
   document.addEventListener('mouseout', e => {
     const card = e.target.closest('.agent-card');
     if (card && !card.contains(e.relatedTarget)) {
@@ -241,7 +234,7 @@ function setup3DTilt() {
 /* ===== SKELETONS ===== */
 function showSkeletons() {
   const featured = document.getElementById('featured-grid');
-  const all = document.getElementById('agents-grid');
+  const all = document.getElementById('all-agents-grid');
   const cats = document.getElementById('categories-grid');
   const skel = `<div class="skeleton-card"><div class="skeleton skeleton-circle" style="margin-bottom:0.75rem"></div><div class="skeleton skeleton-line w75"></div><div class="skeleton skeleton-line w100"></div><div class="skeleton skeleton-line w50"></div></div>`;
   if (featured) featured.innerHTML = skel.repeat(3);
@@ -251,7 +244,7 @@ function showSkeletons() {
 
 /* ===== REVEAL ANIMATIONS ===== */
 function setupRevealAnimations() {
-  const els = document.querySelectorAll('.reveal');
+  const els = document.querySelectorAll('.reveal:not(.visible)');
   if (!els.length) return;
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
@@ -280,10 +273,7 @@ function setupCounters() {
   if (!els.length) return;
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
-      if (e.isIntersecting) {
-        animateCounter(e.target);
-        io.unobserve(e.target);
-      }
+      if (e.isIntersecting) { animateCounter(e.target); io.unobserve(e.target); }
     });
   }, { threshold: 0.5 });
   els.forEach(el => io.observe(el));
@@ -308,14 +298,12 @@ function animateCounter(el) {
 /* ===== KEYBOARD SHORTCUTS ===== */
 function setupKeyboardShortcuts() {
   document.addEventListener('keydown', e => {
-    // Ctrl/Cmd+K → focus search
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();
       const inp = document.querySelector('.search-box input');
       if (inp) inp.focus();
     }
-    // Escape → close modal
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape') closeAllModals();
   });
 }
 
@@ -337,68 +325,50 @@ function toggleMobileMenu() {
     links.style.background = 'var(--bg-elevated)';
     links.style.padding = '1rem';
     links.style.borderBottom = '1px solid var(--border)';
+    links.style.zIndex = '999';
   }
 }
 
 /* ===== CATEGORIES ===== */
-const categoryIcons = {
-  'Coding':    '💻',
-  'Research':  '🔬',
-  'Writing':   '✍️',
-  'Data':      '📊',
-  'Design':    '🎨',
-  'DevOps':    '⚙️',
-  'Security':  '🛡️',
-  'Customer Support': '💬',
-  'General':   '🤖',
-};
-function getCategoryIcon(cat) { return categoryIcons[cat] || '🤖'; }
+function getCategoryIcon(catId) {
+  const cat = categories.find(c => c.id === catId);
+  return cat ? cat.icon : '🤖';
+}
+function getCategoryName(catId) {
+  const cat = categories.find(c => c.id === catId);
+  return cat ? cat.name : catId;
+}
 
 function renderCategories() {
   const grid = document.getElementById('categories-grid');
-  if (!grid || typeof agents === 'undefined') return;
-  const cats = {};
-  agents.forEach(a => { cats[a.category] = (cats[a.category] || 0) + 1; });
-  grid.innerHTML = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([cat, count]) => `
-    <div class="category-card reveal" onclick="setFilter('${cat}')" tabindex="0" role="button" aria-label="Filter by ${cat}">
-      <div class="category-icon">${getCategoryIcon(cat)}</div>
-      <h3>${cat}</h3>
-      <p>${getCategoryDescription(cat)}</p>
-      <span class="category-count">${count} agent${count !== 1 ? 's' : ''}</span>
+  if (!grid || !categories.length) return;
+  grid.innerHTML = categories.map(cat => `
+    <div class="category-card reveal" onclick="setFilter('${cat.id}')" tabindex="0" role="button" aria-label="Filter by ${cat.name}">
+      <div class="category-icon">${cat.icon}</div>
+      <h3>${escapeHTML(cat.name)}</h3>
+      <p>${escapeHTML(cat.description)}</p>
+      <span class="category-count">${cat.count} agent${cat.count !== 1 ? 's' : ''}</span>
     </div>
   `).join('');
   setupRevealAnimations();
-}
-function getCategoryDescription(cat) {
-  const d = {
-    'Coding': 'AI-powered code generation, review & debugging',
-    'Research': 'Automated research, analysis & knowledge synthesis',
-    'Writing': 'Content creation, copywriting & editing',
-    'Data': 'Data analysis, visualization & pipeline automation',
-    'Design': 'Image generation, UI design & creative tools',
-    'DevOps': 'CI/CD, infrastructure & deployment automation',
-    'Security': 'Vulnerability scanning & threat detection',
-    'Customer Support': 'AI chatbots & support automation',
-    'General': 'Multi-purpose autonomous AI agents',
-  };
-  return d[cat] || 'AI-powered tools and automation';
 }
 
 /* ===== FEATURED AGENTS ===== */
 function renderFeaturedAgents() {
   const grid = document.getElementById('featured-grid');
-  if (!grid || typeof agents === 'undefined') return;
+  if (!grid || !agents.length) return;
   const featured = agents.filter(a => a.featured).slice(0, 6);
   grid.innerHTML = featured.map(a => renderAgentCard(a, true)).join('');
+  setupRevealAnimations();
 }
 
 /* ===== ALL AGENTS ===== */
 function renderAllAgents() {
-  const grid = document.getElementById('agents-grid');
-  if (!grid || typeof agents === 'undefined') return;
+  const grid = document.getElementById('all-agents-grid');
+  if (!grid || !agents.length) return;
   let list = [...agents];
   if (currentFilter !== 'all') {
-    if (currentFilter === 'Open Source') {
+    if (currentFilter === 'open-source') {
       list = list.filter(a => a.tags && a.tags.some(t => t.toLowerCase() === 'open source'));
     } else {
       list = list.filter(a => a.category === currentFilter);
@@ -415,13 +385,19 @@ function renderAllAgents() {
 
 /* ===== SORT ===== */
 function sortAgents(arr, method) {
+  const copy = [...arr];
   switch (method) {
-    case 'rating': return arr.sort((a, b) => b.rating - a.rating);
-    case 'name': return arr.sort((a, b) => a.name.localeCompare(b.name));
-    case 'newest': return arr.sort((a, b) => (b.year || 2024) - (a.year || 2024));
-    case 'views': return arr.sort((a, b) => (b.views || 0) - (a.views || 0));
-    case 'trending': return arr.sort((a, b) => ((b.views || 0) * b.rating) - ((a.views || 0) * a.rating));
-    default: return arr.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || b.rating - a.rating);
+    case 'rating': return copy.sort((a, b) => b.rating - a.rating);
+    case 'name': return copy.sort((a, b) => a.name.localeCompare(b.name));
+    case 'reviews': return copy.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
+    case 'newest': {
+      return copy.sort((a, b) => {
+        const da = a.launchDate || '2020-01';
+        const db = b.launchDate || '2020-01';
+        return db.localeCompare(da);
+      });
+    }
+    default: return copy.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || b.rating - a.rating);
   }
 }
 function setSort(method) {
@@ -438,43 +414,50 @@ function setFilter(cat) {
   currentFilter = cat;
   updateFilterButtons();
   renderAllAgents();
-  const dir = document.getElementById('directory');
+  const dir = document.getElementById('agents');
   if (dir) dir.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function updateFilterButtons() {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === currentFilter));
 }
 function updateFilterCounts() {
-  if (typeof agents === 'undefined') return;
+  if (!agents.length) return;
   document.querySelectorAll('.filter-btn').forEach(btn => {
     const f = btn.dataset.filter;
     if (!f) return;
     let count = 0;
     if (f === 'all') count = agents.length;
-    else if (f === 'Open Source') count = agents.filter(a => a.tags && a.tags.some(t => t.toLowerCase() === 'open source')).length;
+    else if (f === 'open-source') count = agents.filter(a => a.tags && a.tags.some(t => t.toLowerCase() === 'open source')).length;
     else count = agents.filter(a => a.category === f).length;
-    const span = btn.querySelector('.filter-count');
-    if (span) span.textContent = count;
+    let span = btn.querySelector('.filter-count');
+    if (!span) {
+      span = document.createElement('span');
+      span.className = 'filter-count';
+      btn.appendChild(span);
+    }
+    span.textContent = count;
   });
 }
 
 /* ===== RENDER CARD ===== */
 function renderAgentCard(a, isFeatured) {
   const stars = renderStars(a.rating);
-  const isTrending = (a.views || 0) > 50000;
+  const isTrending = (a.reviews || 0) > 500;
   const isCompared = compareList.includes(a.id);
-  const popularityPct = Math.min(100, Math.round(((a.views || 0) / 120000) * 100));
+  const popularityPct = Math.min(100, Math.round(((a.reviews || 0) / 1500) * 100));
   const isOS = a.tags && a.tags.some(t => t.toLowerCase() === 'open source');
+  const websiteUrl = a.website || '#';
+  const yearStr = a.launchDate ? a.launchDate.slice(0, 4) : '';
 
   return `
-    <div class="agent-card ${isFeatured ? 'featured' : ''} reveal" data-id="${a.id}" onclick="openAgentDetail(${a.id})" tabindex="0" role="article" aria-label="${a.name}">
-      <div class="card-compare ${isCompared ? 'active' : ''}" onclick="event.stopPropagation();toggleCompare(${a.id})" title="Compare" aria-label="Compare ${a.name}">✓</div>
-      ${isFeatured ? '<div class="featured-badge">⭐ Featured</div>' : isTrending ? '<div class="trending-badge">🔥 Trending</div>' : ''}
+    <div class="agent-card ${isFeatured ? 'featured' : ''} reveal" data-id="${a.id}" onclick="openAgentDetail('${a.id}')" tabindex="0" role="article" aria-label="${escapeHTML(a.name)}">
+      <div class="card-compare ${isCompared ? 'active' : ''}" onclick="event.stopPropagation();toggleCompare('${a.id}')" title="Compare" aria-label="Compare ${escapeHTML(a.name)}">✓</div>
+      ${isFeatured ? '<div class="featured-badge">⭐ Featured</div>' : isTrending && !isFeatured ? '<div class="trending-badge">🔥 Trending</div>' : ''}
       <div class="agent-header">
-        <div class="agent-logo">${a.logo ? `<img src="${a.logo}" alt="${a.name}" onerror="this.parentNode.textContent='${getCategoryIcon(a.category)}'">` : getCategoryIcon(a.category)}</div>
+        <div class="agent-logo">${a.logo ? `<img src="${a.logo}" alt="${escapeHTML(a.name)}" onerror="this.parentNode.textContent='${getCategoryIcon(a.category)}'">` : getCategoryIcon(a.category)}</div>
         <div class="agent-info">
           <h3>${escapeHTML(a.name)}</h3>
-          <div class="tagline">${escapeHTML(a.tagline || a.category)}</div>
+          <div class="tagline">${escapeHTML(a.tagline || getCategoryName(a.category))}</div>
         </div>
       </div>
       <p class="agent-description">${escapeHTML(a.description)}</p>
@@ -484,14 +467,12 @@ function renderAgentCard(a, isFeatured) {
         ${isOS ? '<span class="agent-tag" style="border-color:var(--green);color:var(--green)">Open Source</span>' : ''}
       </div>
       <div class="card-actions" onclick="event.stopPropagation()">
-        <a href="${a.url || '#'}" target="_blank" rel="noopener" class="card-cta card-cta-primary" aria-label="Try ${a.name}">Try Free →</a>
-        <button class="card-cta card-cta-secondary" onclick="openAgentDetail(${a.id})" aria-label="View details for ${a.name}">Details</button>
+        <a href="${websiteUrl}" target="_blank" rel="noopener" class="card-cta card-cta-primary" aria-label="Try ${escapeHTML(a.name)}">Try Free →</a>
+        <button class="card-cta card-cta-secondary" onclick="openAgentDetail('${a.id}')" aria-label="View details for ${escapeHTML(a.name)}">Details</button>
       </div>
       <div class="agent-footer">
         <span class="agent-pricing">${escapeHTML(a.pricing)}</span>
-        <span>
-          <span class="agent-views">👁 ${formatNumber(a.views || 0)}</span>
-        </span>
+        <span class="agent-views">📝 ${formatNumber(a.reviews || 0)} reviews</span>
       </div>
       <div class="popularity-bar"><div class="popularity-fill" style="width:${popularityPct}%"></div></div>
     </div>
@@ -527,9 +508,8 @@ function toggleCompare(id) {
     compareList.push(id);
   }
   updateCompareUI();
-  // Update card checkboxes
   document.querySelectorAll('.agent-card').forEach(c => {
-    const cid = parseInt(c.dataset.id);
+    const cid = c.dataset.id;
     const cb = c.querySelector('.card-compare');
     if (cb) cb.classList.toggle('active', compareList.includes(cid));
   });
@@ -541,25 +521,24 @@ function updateCompareUI() {
   if (!bar) return;
   bar.classList.toggle('visible', compareList.length > 0);
   if (badge) badge.textContent = compareList.length;
-  if (chips && typeof agents !== 'undefined') {
+  if (chips) {
     chips.innerHTML = compareList.map(id => {
       const a = agents.find(x => x.id === id);
-      return a ? `<span class="compare-chip">${escapeHTML(a.name)}<span class="compare-chip-x" onclick="toggleCompare(${id})">×</span></span>` : '';
+      return a ? `<span class="compare-chip">${escapeHTML(a.name)}<span class="compare-chip-x" onclick="toggleCompare('${id}')">×</span></span>` : '';
     }).join('');
   }
 }
-function clearCompare() { compareList = []; updateCompareUI(); renderAllAgents(); }
+function clearCompare() { compareList = []; updateCompareUI(); renderAllAgents(); renderFeaturedAgents(); }
 function openCompareModal() {
   if (compareList.length < 2) { showToast('Select at least 2 agents to compare'); return; }
-  if (typeof agents === 'undefined') return;
   const list = compareList.map(id => agents.find(a => a.id === id)).filter(Boolean);
   const rows = [
-    { label: 'Category', fn: a => a.category },
+    { label: 'Category', fn: a => getCategoryName(a.category) },
     { label: 'Rating', fn: a => `⭐ ${a.rating}`, cls: 'compare-rating' },
     { label: 'Reviews', fn: a => formatNumber(a.reviews || 0) },
     { label: 'Pricing', fn: a => a.pricing, cls: 'compare-pricing' },
-    { label: 'Views', fn: a => formatNumber(a.views || 0) },
-    { label: 'Year', fn: a => a.year || '—' },
+    { label: 'Launched', fn: a => a.launchDate || '—' },
+    { label: 'Company', fn: a => a.company || '—' },
     { label: 'Tags', fn: a => (a.tags || []).join(', ') },
   ];
   const html = `
@@ -570,7 +549,7 @@ function openCompareModal() {
     </table>
     </div>
   `;
-  showModal('Compare Agents', html, 'modal-wide');
+  openModal('compare-modal', 'Compare Agents', html);
 }
 
 /* ===== SEARCH ===== */
@@ -583,12 +562,12 @@ function setupSearch() {
   if (btn) btn.addEventListener('click', () => searchFor(input.value));
 }
 function searchFor(q) {
-  q = q.trim().toLowerCase();
-  const grid = document.getElementById('agents-grid');
-  if (!grid || typeof agents === 'undefined') return;
+  q = (q || '').trim().toLowerCase();
+  const grid = document.getElementById('all-agents-grid');
+  if (!grid || !agents.length) return;
   let list = [...agents];
   if (currentFilter !== 'all') {
-    if (currentFilter === 'Open Source') list = list.filter(a => a.tags && a.tags.some(t => t.toLowerCase() === 'open source'));
+    if (currentFilter === 'open-source') list = list.filter(a => a.tags && a.tags.some(t => t.toLowerCase() === 'open source'));
     else list = list.filter(a => a.category === currentFilter);
   }
   if (q) {
@@ -596,6 +575,8 @@ function searchFor(q) {
       a.name.toLowerCase().includes(q) ||
       a.description.toLowerCase().includes(q) ||
       a.category.toLowerCase().includes(q) ||
+      (a.tagline || '').toLowerCase().includes(q) ||
+      (a.company || '').toLowerCase().includes(q) ||
       (a.tags || []).some(t => t.toLowerCase().includes(q))
     );
   }
@@ -607,15 +588,11 @@ function searchFor(q) {
   if (rc) rc.textContent = `Showing ${list.length} of ${agents.length} agents`;
   setupRevealAnimations();
 }
-function filterByCategory(cat) { setFilter(cat); }
 
 /* ===== AGENT DETAIL MODAL ===== */
 function openAgentDetail(id) {
-  if (typeof agents === 'undefined') return;
   const a = agents.find(x => x.id === id);
   if (!a) return;
-
-  // Generate rating breakdown (simulated)
   const totalReviews = a.reviews || 100;
   const breakdowns = [
     Math.round(totalReviews * 0.65),
@@ -624,24 +601,24 @@ function openAgentDetail(id) {
     Math.round(totalReviews * 0.04),
     Math.round(totalReviews * 0.03),
   ];
-
-  // Find similar agents
   const similar = agents.filter(x => x.id !== a.id && x.category === a.category).slice(0, 3);
+  const websiteUrl = a.website || '#';
 
   const html = `
     <div class="detail-header">
       <div class="detail-logo">${a.logo ? `<img src="${a.logo}" alt="" onerror="this.parentNode.textContent='${getCategoryIcon(a.category)}'">` : getCategoryIcon(a.category)}</div>
       <div class="detail-info">
         <h1>${escapeHTML(a.name)}</h1>
-        <p class="tagline">${escapeHTML(a.tagline || a.category)}</p>
+        <p class="tagline">${escapeHTML(a.tagline || getCategoryName(a.category))}</p>
       </div>
     </div>
     <div class="detail-meta">
       <span class="detail-meta-item">⭐ ${a.rating}/5</span>
       <span class="detail-meta-item">💰 ${escapeHTML(a.pricing)}</span>
-      <span class="detail-meta-item">📁 ${escapeHTML(a.category)}</span>
-      <span class="detail-meta-item">👁 ${formatNumber(a.views || 0)} views</span>
-      ${a.year ? `<span class="detail-meta-item">📅 ${a.year}</span>` : ''}
+      <span class="detail-meta-item">📁 ${escapeHTML(getCategoryName(a.category))}</span>
+      <span class="detail-meta-item">📝 ${formatNumber(totalReviews)} reviews</span>
+      ${a.launchDate ? `<span class="detail-meta-item">📅 ${a.launchDate}</span>` : ''}
+      ${a.company ? `<span class="detail-meta-item">🏢 ${escapeHTML(a.company)}</span>` : ''}
     </div>
     <div class="detail-rating-breakdown">
       <div>
@@ -665,72 +642,59 @@ function openAgentDetail(id) {
       <div class="detail-similar-label">Similar Agents</div>
       <div class="detail-similar-grid">
         ${similar.map(s => `
-          <div class="similar-card" onclick="closeModal();setTimeout(()=>openAgentDetail(${s.id}),300)">
+          <div class="similar-card" onclick="closeModal('agent-modal');setTimeout(()=>openAgentDetail('${s.id}'),300)">
             <div class="similar-name">${escapeHTML(s.name)}</div>
-            <div class="similar-cat">${escapeHTML(s.category)} · ⭐ ${s.rating}</div>
+            <div class="similar-cat">${escapeHTML(getCategoryName(s.category))} · ⭐ ${s.rating}</div>
           </div>
         `).join('')}
       </div>
     </div>
     ` : ''}
     <div class="detail-actions">
-      <a href="${a.url || '#'}" target="_blank" rel="noopener" class="btn-primary">🚀 Try ${escapeHTML(a.name)} Free</a>
-      <button class="btn-secondary" onclick="toggleCompare(${a.id});closeModal()">⚖️ Add to Compare</button>
+      <a href="${websiteUrl}" target="_blank" rel="noopener" class="btn-primary">🚀 Try ${escapeHTML(a.name)} Free</a>
+      <button class="btn-secondary" onclick="toggleCompare('${a.id}');closeModal('agent-modal')">⚖️ Add to Compare</button>
     </div>
     <div style="text-align:center;margin-top:0.75rem;font-size:0.75rem;color:var(--text-muted)">🛡️ Verified listing · 30-day guarantee</div>
   `;
-  showModal(a.name, html);
+  openModal('agent-modal', escapeHTML(a.name), html);
 }
 
 /* ===== SUBMIT MODAL ===== */
 function openSubmitModal() {
-  const html = `
-    <p class="form-intro">List your AI agent on AgentStack and reach thousands of potential users. Free tier available — get started in 60 seconds.</p>
-    <form id="submit-form" onsubmit="handleSubmit(event)">
-      <div class="form-row">
-        <div class="form-group"><label>Agent Name <span class="req">*</span></label><input type="text" placeholder="e.g. MyAgent AI" required></div>
-        <div class="form-group"><label>Website <span class="req">*</span></label><input type="url" placeholder="https://..." required></div>
-      </div>
-      <div class="form-group"><label>Category <span class="req">*</span></label>
-        <select required><option value="">Select category...</option>
-        ${Object.keys(categoryIcons).map(c => `<option value="${c}">${c}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group"><label>Short Description <span class="req">*</span></label><textarea placeholder="What does your agent do?" required></textarea></div>
-      <div class="form-row">
-        <div class="form-group"><label>Pricing</label><input type="text" placeholder="e.g. Free / $20/mo"></div>
-        <div class="form-group"><label>Your Email <span class="req">*</span></label><input type="email" placeholder="you@company.com" required></div>
-      </div>
-      <button type="submit" class="form-submit">🚀 Submit Agent — It's Free</button>
-    </form>
-  `;
-  showModal('Submit Your Agent', html);
+  openModal('submit-modal');
 }
 
 /* ===== MODAL HELPERS ===== */
-function showModal(title, bodyHTML, extraClass) {
-  const overlay = document.getElementById('modal-overlay');
+function openModal(modalId, title, bodyHTML) {
+  const overlay = document.getElementById(modalId);
   if (!overlay) return;
-  const header = overlay.querySelector('.modal-header h2');
-  const body = overlay.querySelector('.modal-body');
-  const modal = overlay.querySelector('.modal');
-  if (header) header.textContent = title;
-  if (body) body.innerHTML = bodyHTML;
-  if (modal) { modal.className = 'modal' + (extraClass ? ' ' + extraClass : ''); }
+  if (title) {
+    const h2 = overlay.querySelector('.modal-header h2');
+    if (h2) h2.textContent = title;
+  }
+  if (bodyHTML) {
+    const body = overlay.querySelector('.modal-body');
+    if (body) body.innerHTML = bodyHTML;
+  }
   overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
 }
-function closeModal() {
-  const overlay = document.getElementById('modal-overlay');
-  if (!overlay) return;
-  overlay.classList.remove('active');
+function closeModal(modalId) {
+  if (modalId) {
+    const overlay = document.getElementById(modalId);
+    if (overlay) overlay.classList.remove('active');
+  }
+  document.body.style.overflow = '';
+}
+function closeAllModals() {
+  document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
   document.body.style.overflow = '';
 }
 
 /* ===== FORM HANDLERS ===== */
 function handleSubmit(e) {
   e.preventDefault();
-  closeModal();
+  closeModal('submit-modal');
   launchConfetti();
   showToast('🎉 Agent submitted! We\'ll review it within 24 hours.');
 }
@@ -759,7 +723,6 @@ function launchConfetti() {
     c.style.cssText = `position:absolute;top:-10px;left:${x}%;width:${size}px;height:${size}px;background:${color};border-radius:${Math.random() > 0.5 ? '50%' : '2px'};animation:confettiFall ${1.5 + Math.random()}s ease-in ${delay}s forwards;`;
     container.appendChild(c);
   }
-  // Inject animation if not present
   if (!document.getElementById('confetti-style')) {
     const style = document.createElement('style');
     style.id = 'confetti-style';
@@ -788,24 +751,24 @@ function setupEventListeners() {
   const ham = document.querySelector('.nav-hamburger');
   if (ham) ham.addEventListener('click', toggleMobileMenu);
 
-  // Submit CTA
-  document.querySelectorAll('[data-action="submit"]').forEach(el => el.addEventListener('click', openSubmitModal));
-
-  // Mobile sticky CTA
-  const mobileCTA = document.querySelector('.mobile-sticky-cta button');
-  if (mobileCTA) mobileCTA.addEventListener('click', openSubmitModal);
-
   // Compare
   const compareGoBtn = document.querySelector('.compare-btn-go');
   if (compareGoBtn) compareGoBtn.addEventListener('click', openCompareModal);
   const compareClearBtn = document.querySelector('.compare-btn-clear');
   if (compareClearBtn) compareClearBtn.addEventListener('click', clearCompare);
 
-  // Modal close
-  const modalClose = document.querySelector('.modal-close');
-  if (modalClose) modalClose.addEventListener('click', closeModal);
-  const overlay = document.getElementById('modal-overlay');
-  if (overlay) overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  // Modal close buttons
+  document.querySelectorAll('.modal-close').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const overlay = btn.closest('.modal-overlay');
+      if (overlay) closeModal(overlay.id);
+    });
+  });
+
+  // Click outside modal to close
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay.id); });
+  });
 
   // Filter buttons
   document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -821,19 +784,13 @@ function setupEventListeners() {
   document.querySelectorAll('.search-tag').forEach(tag => {
     tag.addEventListener('click', () => {
       const inp = document.querySelector('.search-box input');
-      if (inp) { inp.value = tag.textContent.trim(); searchFor(inp.value); }
+      // Extract text without the tag dot
+      const text = tag.textContent.trim();
+      if (inp) { inp.value = text; searchFor(text); }
     });
   });
 
   // Newsletter
-  const nlForm = document.getElementById('newsletter-form');
+  const nlForm = document.querySelector('.newsletter-form');
   if (nlForm) nlForm.addEventListener('submit', handleNewsletter);
-
-  // Back to top in footer
-  document.querySelectorAll('[href="#"]').forEach(l => {
-    l.addEventListener('click', e => {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
 }

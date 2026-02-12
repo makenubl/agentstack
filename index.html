@@ -7,7 +7,7 @@
   <meta name="description" content="Discover 500+ AI agents for coding, sales, customer support, marketing, and more. Compare pricing, features, and reviews. Find the perfect AI agent for your business.">
   <meta name="keywords" content="AI agents, AI agent directory, autonomous AI, coding agents, sales agents, customer support AI, AI marketplace">
   <meta property="og:title" content="AgentStack — The Definitive AI Agent Directory">
-  <meta property="og:description" content="Discover, compare, and deploy the best AI agents. 500+ agents across 8 categories.">
+  <meta property="og:description" content="Discover, compare, and deploy the best AI agents. 500+ agents across 9 categories.">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
@@ -32,7 +32,7 @@
   <!-- Navbar -->
   <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
     <div class="nav-inner">
-      <a class="nav-logo" href="#" onclick="window.scrollTo({top:0,behavior:'smooth'}); return false;" aria-label="AgentStack home">
+      <a class="nav-logo" href="#" aria-label="AgentStack home">
         <div class="logo-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="url(#bolt-grad)" stroke="url(#bolt-grad)" stroke-width="0.5"/>
@@ -48,7 +48,7 @@
         <li><a href="#pricing">Pricing</a></li>
       </ul>
       <div class="nav-actions">
-        <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
           <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
           <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
@@ -57,7 +57,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Submit Agent
         </button>
-        <button class="nav-hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+        <button class="nav-hamburger" id="hamburger" aria-label="Menu">
           <span></span><span></span><span></span>
         </button>
       </div>
@@ -103,20 +103,20 @@
       </div>
       <div class="search-tags reveal">
         <span class="tag-label">Popular:</span>
-        <button class="search-tag" onclick="searchFor('coding')"><span class="tag-dot" style="background:#a78bfa"></span>Coding</button>
-        <button class="search-tag" onclick="searchFor('sales')"><span class="tag-dot" style="background:#f472b6"></span>Sales</button>
-        <button class="search-tag" onclick="searchFor('customer support')"><span class="tag-dot" style="background:#34d399"></span>Support</button>
-        <button class="search-tag" onclick="searchFor('research')"><span class="tag-dot" style="background:#60a5fa"></span>Research</button>
-        <button class="search-tag" onclick="searchFor('open source')"><span class="tag-dot" style="background:#fbbf24"></span>Open Source</button>
+        <button class="search-tag"><span class="tag-dot" style="background:#a78bfa"></span>Coding</button>
+        <button class="search-tag"><span class="tag-dot" style="background:#f472b6"></span>Sales</button>
+        <button class="search-tag"><span class="tag-dot" style="background:#34d399"></span>Support</button>
+        <button class="search-tag"><span class="tag-dot" style="background:#60a5fa"></span>Research</button>
+        <button class="search-tag"><span class="tag-dot" style="background:#fbbf24"></span>Open Source</button>
       </div>
       <div class="stats-bar reveal">
-        <div class="stat"><div class="stat-number" data-count="500">0</div><div class="stat-label">AI Agents</div></div>
+        <div class="stat"><div class="stat-number">500+</div><div class="stat-label">AI Agents</div></div>
         <div class="stat-divider"></div>
-        <div class="stat"><div class="stat-number" data-count="9">0</div><div class="stat-label">Categories</div></div>
+        <div class="stat"><div class="stat-number">9</div><div class="stat-label">Categories</div></div>
         <div class="stat-divider"></div>
-        <div class="stat"><div class="stat-number" data-count="50">0</div><div class="stat-label">K+ Monthly Users</div></div>
+        <div class="stat"><div class="stat-number">50K+</div><div class="stat-label">Monthly Users</div></div>
         <div class="stat-divider"></div>
-        <div class="stat"><div class="stat-number" data-count="10">0</div><div class="stat-label">K+ Reviews</div></div>
+        <div class="stat"><div class="stat-number">10K+</div><div class="stat-label">Reviews</div></div>
       </div>
       <div class="trusted-bar reveal">
         <span class="trusted-label">Trusted by teams at</span>
@@ -188,24 +188,24 @@
         <p class="section-desc">Browse our complete collection</p>
       </div>
       <div class="filter-bar reveal" id="filter-bar">
-        <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">🌐 All</button>
-        <button class="filter-btn" data-filter="coding" onclick="setFilter('coding')">💻 Coding</button>
-        <button class="filter-btn" data-filter="customer-support" onclick="setFilter('customer-support')">🎧 Support</button>
-        <button class="filter-btn" data-filter="sales" onclick="setFilter('sales')">📈 Sales</button>
-        <button class="filter-btn" data-filter="marketing" onclick="setFilter('marketing')">📣 Marketing</button>
-        <button class="filter-btn" data-filter="research" onclick="setFilter('research')">🔬 Research</button>
-        <button class="filter-btn" data-filter="personal-assistant" onclick="setFilter('personal-assistant')">🤖 Assistants</button>
-        <button class="filter-btn" data-filter="workflow-automation" onclick="setFilter('workflow-automation')">⚡ Automation</button>
-        <button class="filter-btn" data-filter="data-analysis" onclick="setFilter('data-analysis')">📊 Data</button>
-        <button class="filter-btn" data-filter="open-source" onclick="setFilter('open-source')">🔓 Open Source</button>
+        <button class="filter-btn active" data-filter="all">🌐 All</button>
+        <button class="filter-btn" data-filter="coding">💻 Coding</button>
+        <button class="filter-btn" data-filter="customer-support">🎧 Support</button>
+        <button class="filter-btn" data-filter="sales">📈 Sales</button>
+        <button class="filter-btn" data-filter="marketing">📣 Marketing</button>
+        <button class="filter-btn" data-filter="research">🔬 Research</button>
+        <button class="filter-btn" data-filter="personal-assistant">🤖 Assistants</button>
+        <button class="filter-btn" data-filter="workflow-automation">⚡ Automation</button>
+        <button class="filter-btn" data-filter="data-analysis">📊 Data</button>
+        <button class="filter-btn" data-filter="open-source">🔓 Open Source</button>
       </div>
       <div class="sort-bar reveal" id="sort-bar">
         <span class="sort-label">Sort by:</span>
-        <button class="sort-btn active" data-sort="default" onclick="setSort('default')">Default</button>
-        <button class="sort-btn" data-sort="rating" onclick="setSort('rating')">⭐ Top Rated</button>
-        <button class="sort-btn" data-sort="reviews" onclick="setSort('reviews')">🔥 Most Reviewed</button>
-        <button class="sort-btn" data-sort="newest" onclick="setSort('newest')">🆕 Newest</button>
-        <button class="sort-btn" data-sort="name" onclick="setSort('name')">A→Z Name</button>
+        <button class="sort-btn active" data-sort="default">Default</button>
+        <button class="sort-btn" data-sort="rating">⭐ Top Rated</button>
+        <button class="sort-btn" data-sort="reviews">🔥 Most Reviewed</button>
+        <button class="sort-btn" data-sort="newest">🆕 Newest</button>
+        <button class="sort-btn" data-sort="name">A→Z Name</button>
       </div>
       <div class="agents-grid" id="all-agents-grid"></div>
       <div class="results-count" id="results-count"></div>
@@ -221,8 +221,8 @@
       </div>
       <div class="compare-bar-chips" id="compare-chips"></div>
       <div class="compare-bar-actions">
-        <button class="compare-btn-clear" onclick="clearCompare()">Clear</button>
-        <button class="compare-btn-go" onclick="openCompareModal()">Compare Now →</button>
+        <button class="compare-btn-clear">Clear</button>
+        <button class="compare-btn-go">Compare Now →</button>
       </div>
     </div>
   </div>
@@ -238,7 +238,7 @@
       <!-- Urgency countdown -->
       <div class="pricing-urgency reveal">
         <span class="urgency-icon">🔥</span>
-        <span>Launch offer: <strong>50% off Featured tier</strong> — only <span class="countdown" id="countdown"></span> left</span>
+        <span>Launch offer: <strong>50% off Featured tier</strong> — ends in <span class="countdown" id="countdown">00:00:00</span></span>
       </div>
       <div class="pricing-grid">
         <div class="pricing-card reveal">
@@ -310,7 +310,7 @@
           <div class="newsletter-icon">📬</div>
           <h2>The AI Agent Weekly</h2>
           <p>Get the top 5 new AI agents, industry trends, and exclusive deals delivered to your inbox every Friday. Trusted by 12,000+ builders.</p>
-          <form class="newsletter-form" onsubmit="handleNewsletter(event)">
+          <form class="newsletter-form">
             <input type="email" name="email" placeholder="you@company.com" required aria-label="Email for newsletter">
             <button type="submit">Subscribe Free <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
           </form>
@@ -365,7 +365,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2026 AgentStack. All rights reserved.</span>
+        <span>&copy; 2026 AgentStack. All rights reserved.</span>
         <div class="footer-socials">
           <a href="#" aria-label="Twitter">𝕏</a><a href="#" aria-label="GitHub">GH</a><a href="#" aria-label="LinkedIn">in</a>
         </div>
@@ -378,7 +378,7 @@
     <div class="modal">
       <div class="modal-header">
         <h2>Agent Details</h2>
-        <button class="modal-close" onclick="closeModal('agent-modal')" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <button class="modal-close" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <div class="modal-body" id="agent-modal-body"></div>
     </div>
@@ -389,7 +389,7 @@
     <div class="modal">
       <div class="modal-header">
         <h2>Submit Your AI Agent</h2>
-        <button class="modal-close" onclick="closeModal('submit-modal')" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <button class="modal-close" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <div class="modal-body">
         <p class="form-intro">Get in front of thousands of potential customers. Basic listings are free forever.</p>
@@ -401,7 +401,7 @@
           <div class="form-group"><label>Tagline <span class="req">*</span></label><input type="text" name="tagline" placeholder="Short one-liner (max 80 chars)" required maxlength="80"></div>
           <div class="form-group"><label>Description <span class="req">*</span></label><textarea name="description" placeholder="What does your agent do?" required></textarea></div>
           <div class="form-row">
-            <div class="form-group"><label>Category <span class="req">*</span></label><select name="category" required><option value="">Select…</option><option value="coding">💻 Coding</option><option value="customer-support">🎧 Support</option><option value="sales">📈 Sales</option><option value="marketing">📣 Marketing</option><option value="research">🔬 Research</option><option value="personal-assistant">🤖 Assistants</option><option value="workflow-automation">⚡ Automation</option><option value="data-analysis">📊 Data</option><option value="open-source">🔓 Open Source</option></select></div>
+            <div class="form-group"><label>Category <span class="req">*</span></label><select name="category" required><option value="">Select…</option><option value="coding">💻 Coding</option><option value="customer-support">🎧 Support</option><option value="sales">📈 Sales</option><option value="marketing">📣 Marketing</option><option value="research">🔬 Research</option><option value="personal-assistant">🤖 Assistants</option><option value="workflow-automation">⚡ Automation</option><option value="data-analysis">📊 Data</option></select></div>
             <div class="form-group"><label>Pricing <span class="req">*</span></label><input type="text" name="pricing" placeholder="e.g. From $20/mo" required></div>
           </div>
           <div class="form-row">
@@ -410,9 +410,9 @@
           </div>
           <div class="form-row">
             <div class="form-group"><label>Tags</label><input type="text" name="tags" placeholder="coding, automation, no-code"></div>
-            <div class="form-group"><label>Tier</label><select name="tier"><option value="free">Basic — Free</option><option value="featured">⚡ Featured — $49/mo</option><option value="premium">🏆 Premium — $149/mo</option></select></div>
+            <div class="form-group"><label>Tier</label><select name="tier"><option value="free">Basic — Free</option><option value="featured">⚡ Featured — $24/mo</option><option value="premium">🏆 Premium — $149/mo</option></select></div>
           </div>
-          <button type="submit" class="form-submit">Submit for Review <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+          <button type="submit" class="form-submit">🚀 Submit for Review <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
         </form>
       </div>
     </div>
@@ -423,14 +423,14 @@
     <div class="modal modal-wide">
       <div class="modal-header">
         <h2>Compare AI Agents</h2>
-        <button class="modal-close" onclick="closeModal('compare-modal')" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <button class="modal-close" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <div class="modal-body" id="compare-modal-body"></div>
     </div>
   </div>
 
   <!-- Back to top -->
-  <button class="back-to-top" id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
   </button>
 
