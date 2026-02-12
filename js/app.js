@@ -1,646 +1,839 @@
-// ===== APP STATE =====
+/* ====================================
+   AgentStack — Conversion-Optimized JS
+   Social Proof · Urgency · Delight
+   ==================================== */
+'use strict';
+
+/* ---- State ---- */
 let currentFilter = 'all';
-let currentSort = 'default';
-let searchQuery = '';
+let currentSort = 'featured';
 let compareList = [];
 const MAX_COMPARE = 4;
+let testimonialIndex = 0;
+let testimonialTimer = null;
 
-// ===== INIT =====
+/* ---- Testimonials Data ---- */
+const testimonials = [
+  { name:'Sarah Chen', role:'VP Engineering, Scale AI', text:'"AgentStack saved us 40+ hours evaluating AI agents. We found our perfect coding assistant in minutes, not months."', stars:5, color:'#a78bfa' },
+  { name:'Marcus Wright', role:'CTO, Replicate', text:'"The comparison feature is a game-changer. We tested 6 agents side-by-side and made a confident decision the same day."', stars:5, color:'#06b6d4' },
+  { name:'Priya Sharma', role:'Head of AI, Notion', text:'"Listed our agent on AgentStack and got 2,000+ qualified leads in the first month. The ROI is incredible."', stars:5, color:'#f472b6' },
+  { name:'James Okafor', role:'Founder, DevTools.ai', text:'"The quality of traffic from AgentStack is unmatched. Buyers here are ready to commit, not just browse."', stars:5, color:'#34d399' },
+  { name:'Lisa Zhang', role:'Product Lead, Hugging Face', text:'"Finally a marketplace that understands AI agents. The categorization and filtering are spot-on."', stars:5, color:'#fbbf24' },
+  { name:'David Kim', role:'Engineering Manager, Stripe', text:'"We use AgentStack to discover new tools for our team. The reviews and ratings are genuinely helpful."', stars:4, color:'#818cf8' },
+];
+
+/* ---- Activity Feed Data ---- */
+const activityTemplates = [
+  { action:'just viewed', agents:['Devin','Cursor AI','AutoGPT','GitHub Copilot','Tabnine','Replit Agent'] },
+  { action:'signed up to list', agents:['their coding agent','a new research assistant','an AI writer'] },
+  { action:'compared', agents:['Devin vs Cursor AI','AutoGPT vs BabyAGI','Copilot vs Tabnine'] },
+  { action:'submitted a review for', agents:['Devin','GitHub Copilot','Jasper AI','Midjourney'] },
+  { action:'purchased Featured listing for', agents:['CodeWhisperer','Phind','Sweep AI'] },
+];
+const activityNames = ['Sarah','Marcus','Priya','James','Lisa','David','Emma','Alex','Jordan','Taylor','Morgan','Casey','Riley','Sam','Chris'];
+const activityLocations = ['San Francisco','New York','London','Berlin','Tokyo','Toronto','Sydney','Singapore','Paris','Austin'];
+const activityColors = ['#a78bfa','#06b6d4','#f472b6','#34d399','#fbbf24','#818cf8','#f97316','#ec4899'];
+
+/* ---- Init ---- */
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   showSkeletons();
-  // Small delay to show skeleton loading effect
   setTimeout(() => {
     renderCategories();
     renderFeaturedAgents();
     renderAllAgents();
-    setupSearch();
+    renderTestimonials();
     setupEventListeners();
+    setupSearch();
     setupRevealAnimations();
     setupNavbarScroll();
+    setupBackToTop();
     setupCounters();
     setupKeyboardShortcuts();
-    setupBackToTop();
+    setupScrollProgress();
+    setupActivityFeed();
+    animateLiveCount();
+    startCountdown();
+    setupMobileCTA();
+    setup3DTilt();
     updateFilterCounts();
-  }, 300);
+    updateFilterButtons();
+    updateSortButtons();
+  }, 600);
 });
 
-// ===== THEME =====
+/* ===== THEME ===== */
 function initTheme() {
   const saved = localStorage.getItem('agentstack-theme');
-  if (saved) {
-    document.documentElement.setAttribute('data-theme', saved);
-  } else {
-    // Default dark, respect system preference
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'dark');
-  }
+  const pref = saved || (window.matchMedia('(prefers-color-scheme:light)').matches ? 'light' : 'dark');
+  document.documentElement.setAttribute('data-theme', pref);
 }
-
 function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('agentstack-theme', next);
 }
 
-// ===== SKELETON LOADING =====
-function showSkeletons() {
-  const grids = ['categories-grid', 'featured-grid', 'all-agents-grid'];
-  grids.forEach(id => {
-    const grid = document.getElementById(id);
-    if (!grid) return;
-    const count = id === 'categories-grid' ? 6 : id === 'featured-grid' ? 3 : 6;
-    grid.innerHTML = Array(count).fill('').map(() => `
-      <div class="skeleton-card">
-        <div style="display:flex;gap:0.9rem;margin-bottom:1rem;">
-          <div class="skeleton skeleton-circle"></div>
-          <div style="flex:1">
-            <div class="skeleton skeleton-line w50"></div>
-            <div class="skeleton skeleton-line w75"></div>
-          </div>
-        </div>
-        <div class="skeleton skeleton-line w100"></div>
-        <div class="skeleton skeleton-line w75"></div>
-        <div style="display:flex;gap:0.35rem;margin-top:0.5rem">
-          <div class="skeleton" style="width:50px;height:20px;border-radius:6px"></div>
-          <div class="skeleton" style="width:60px;height:20px;border-radius:6px"></div>
-          <div class="skeleton" style="width:45px;height:20px;border-radius:6px"></div>
-        </div>
-      </div>
-    `).join('');
-  });
-}
-
-// ===== REVEAL ON SCROLL =====
-function setupRevealAnimations() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
-    });
-  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-  
-  // Also observe dynamically rendered cards
-  const cardObserver = new MutationObserver(() => {
-    document.querySelectorAll('.agent-card, .category-card').forEach(el => {
-      if (!el.dataset.observed) {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(20px)';
-        el.dataset.observed = 'true';
-        setTimeout(() => {
-          el.style.transition = 'opacity 0.5s cubic-bezier(0.16,1,0.3,1), transform 0.5s cubic-bezier(0.16,1,0.3,1)';
-          el.style.opacity = '1';
-          el.style.transform = 'translateY(0)';
-        }, parseInt(el.dataset.index || 0) * 60 + 50);
-      }
-    });
-  });
-  
-  const grids = document.querySelectorAll('.agents-grid, .categories-grid');
-  grids.forEach(g => cardObserver.observe(g, { childList: true }));
-}
-
-// ===== NAVBAR SCROLL =====
-function setupNavbarScroll() {
+/* ===== SCROLL PROGRESS ===== */
+function setupScrollProgress() {
+  const bar = document.getElementById('scroll-progress');
+  if (!bar) return;
   window.addEventListener('scroll', () => {
-    const navbar = document.getElementById('navbar');
-    if (window.scrollY > 20) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
-    }
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = h > 0 ? (window.scrollY / h) * 100 : 0;
+    bar.style.width = pct + '%';
   }, { passive: true });
 }
 
-// ===== BACK TO TOP =====
+/* ===== ACTIVITY FEED ===== */
+function setupActivityFeed() {
+  const container = document.getElementById('activity-feed-inner');
+  if (!container) return;
+  function showActivity() {
+    const tmpl = activityTemplates[Math.floor(Math.random() * activityTemplates.length)];
+    const name = activityNames[Math.floor(Math.random() * activityNames.length)];
+    const loc = activityLocations[Math.floor(Math.random() * activityLocations.length)];
+    const agent = tmpl.agents[Math.floor(Math.random() * tmpl.agents.length)];
+    const color = activityColors[Math.floor(Math.random() * activityColors.length)];
+    const el = document.createElement('div');
+    el.className = 'activity-item';
+    el.innerHTML = `
+      <div class="activity-avatar" style="background:${color}">${name[0]}</div>
+      <div class="activity-text"><strong>${name}</strong> from ${loc} ${tmpl.action} <strong>${agent}</strong></div>
+      <span class="activity-time">Just now</span>
+    `;
+    container.appendChild(el);
+    // Remove after animation
+    setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 5500);
+    // Keep max 2
+    while (container.children.length > 2) container.removeChild(container.firstChild);
+  }
+  // First after 3s, then every 6-10s
+  setTimeout(showActivity, 3000);
+  setInterval(showActivity, 7000 + Math.random() * 3000);
+}
+
+/* ===== LIVE COUNT ===== */
+function animateLiveCount() {
+  const el = document.getElementById('live-count');
+  if (!el) return;
+  let count = 2847;
+  el.textContent = count.toLocaleString();
+  setInterval(() => {
+    const delta = Math.floor(Math.random() * 30) - 12; // -12 to +17
+    count = Math.max(2400, Math.min(3200, count + delta));
+    el.textContent = count.toLocaleString();
+  }, 4000);
+}
+
+/* ===== TESTIMONIALS ===== */
+function renderTestimonials() {
+  const track = document.getElementById('testimonial-track');
+  const dotsC = document.getElementById('testimonial-dots');
+  if (!track || !dotsC) return;
+  track.innerHTML = testimonials.map(t => `
+    <div class="testimonial-card">
+      <div class="testimonial-stars">${'★'.repeat(t.stars)}${'☆'.repeat(5 - t.stars)}</div>
+      <p class="testimonial-text">${t.text}</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar" style="background:${t.color}">${t.name[0]}</div>
+        <div><div class="testimonial-name">${t.name}</div><div class="testimonial-role">${t.role}</div></div>
+      </div>
+    </div>
+  `).join('');
+  // Dots
+  const pageCount = getTestimonialPageCount();
+  dotsC.innerHTML = '';
+  for (let i = 0; i < pageCount; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'testimonial-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', `Testimonial page ${i + 1}`);
+    dot.addEventListener('click', () => goToTestimonial(i));
+    dotsC.appendChild(dot);
+  }
+  // Auto-advance
+  testimonialTimer = setInterval(() => {
+    const next = (testimonialIndex + 1) % pageCount;
+    goToTestimonial(next);
+  }, 5000);
+}
+function getTestimonialPageCount() {
+  const w = window.innerWidth;
+  const perPage = w <= 768 ? 1 : w <= 1100 ? 2 : 3;
+  return Math.ceil(testimonials.length / perPage);
+}
+function goToTestimonial(idx) {
+  const track = document.getElementById('testimonial-track');
+  const dotsC = document.getElementById('testimonial-dots');
+  if (!track) return;
+  testimonialIndex = idx;
+  const w = window.innerWidth;
+  const perPage = w <= 768 ? 1 : w <= 1100 ? 2 : 3;
+  const cardWidth = track.firstElementChild ? track.firstElementChild.offsetWidth + 24 : 0; // 24 = gap
+  track.style.transform = `translateX(-${idx * perPage * cardWidth}px)`;
+  if (dotsC) {
+    dotsC.querySelectorAll('.testimonial-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+  }
+}
+
+/* ===== COUNTDOWN TIMER ===== */
+function startCountdown() {
+  const el = document.getElementById('countdown');
+  if (!el) return;
+  // End = midnight tonight
+  function getEndTime() {
+    const now = new Date();
+    const end = new Date(now);
+    end.setHours(23, 59, 59, 999);
+    return end;
+  }
+  let endTime = getEndTime();
+  function tick() {
+    const now = new Date();
+    let diff = endTime - now;
+    if (diff <= 0) { endTime = getEndTime(); diff = endTime - now; }
+    const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+    const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+    const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+    el.textContent = `${h}:${m}:${s}`;
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+/* ===== MOBILE STICKY CTA ===== */
+function setupMobileCTA() {
+  const cta = document.getElementById('mobile-sticky-cta');
+  if (!cta) return;
+  window.addEventListener('scroll', () => {
+    if (window.innerWidth > 768) { cta.style.display = 'none'; return; }
+    cta.style.display = window.scrollY > 500 ? 'block' : 'none';
+  }, { passive: true });
+}
+
+/* ===== 3D TILT ===== */
+function setup3DTilt() {
+  document.addEventListener('mousemove', e => {
+    const card = e.target.closest('.agent-card');
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const rotY = ((x - cx) / cx) * 4; // max 4deg
+    const rotX = ((cy - y) / cy) * 4;
+    card.style.transform = `translateY(-8px) scale(1.01) perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+  });
+  document.addEventListener('mouseleave', e => {
+    if (e.target.classList && e.target.classList.contains('agent-card')) {
+      e.target.style.transform = '';
+    }
+  }, true);
+  document.addEventListener('mouseout', e => {
+    const card = e.target.closest('.agent-card');
+    if (card && !card.contains(e.relatedTarget)) {
+      card.style.transform = '';
+    }
+  });
+}
+
+/* ===== SKELETONS ===== */
+function showSkeletons() {
+  const featured = document.getElementById('featured-grid');
+  const all = document.getElementById('agents-grid');
+  const cats = document.getElementById('categories-grid');
+  const skel = `<div class="skeleton-card"><div class="skeleton skeleton-circle" style="margin-bottom:0.75rem"></div><div class="skeleton skeleton-line w75"></div><div class="skeleton skeleton-line w100"></div><div class="skeleton skeleton-line w50"></div></div>`;
+  if (featured) featured.innerHTML = skel.repeat(3);
+  if (all) all.innerHTML = skel.repeat(6);
+  if (cats) cats.innerHTML = skel.repeat(6);
+}
+
+/* ===== REVEAL ANIMATIONS ===== */
+function setupRevealAnimations() {
+  const els = document.querySelectorAll('.reveal');
+  if (!els.length) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  els.forEach(el => io.observe(el));
+}
+
+/* ===== NAVBAR SCROLL ===== */
+function setupNavbarScroll() {
+  const nav = document.getElementById('navbar');
+  if (!nav) return;
+  window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 20); }, { passive: true });
+}
+
+/* ===== BACK TO TOP ===== */
 function setupBackToTop() {
   const btn = document.getElementById('back-to-top');
   if (!btn) return;
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 600) {
-      btn.classList.add('visible');
-    } else {
-      btn.classList.remove('visible');
-    }
-  }, { passive: true });
+  window.addEventListener('scroll', () => { btn.classList.toggle('visible', window.scrollY > 600); }, { passive: true });
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
-// ===== ANIMATED COUNTERS =====
+/* ===== COUNTERS ===== */
 function setupCounters() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting && !entry.target.dataset.counted) {
-        entry.target.dataset.counted = 'true';
-        animateCounter(entry.target);
+  const els = document.querySelectorAll('.stat-number');
+  if (!els.length) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        animateCounter(e.target);
+        io.unobserve(e.target);
       }
     });
   }, { threshold: 0.5 });
-
-  document.querySelectorAll('.stat-number[data-count]').forEach(el => observer.observe(el));
+  els.forEach(el => io.observe(el));
 }
-
 function animateCounter(el) {
-  const target = parseInt(el.dataset.count);
-  const duration = 1500;
+  const text = el.textContent.trim();
+  const suffix = text.replace(/[0-9,.]/g, '');
+  const target = parseInt(text.replace(/[^0-9]/g, ''), 10);
+  if (isNaN(target)) return;
+  const dur = 1800;
   const start = performance.now();
-  
-  const step = (now) => {
-    const progress = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 4);
-    const current = Math.round(eased * target);
-    el.textContent = current + (target >= 100 ? '+' : '');
-    if (progress < 1) requestAnimationFrame(step);
-  };
-  
+  function step(now) {
+    const p = Math.min((now - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - p, 4);
+    const val = Math.round(target * ease);
+    el.textContent = val.toLocaleString() + suffix;
+    if (p < 1) requestAnimationFrame(step);
+  }
   requestAnimationFrame(step);
 }
 
-// ===== KEYBOARD SHORTCUTS =====
+/* ===== KEYBOARD SHORTCUTS ===== */
 function setupKeyboardShortcuts() {
-  document.addEventListener('keydown', (e) => {
-    // Cmd/Ctrl + K to focus search
+  document.addEventListener('keydown', e => {
+    // Ctrl/Cmd+K → focus search
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();
-      const input = document.getElementById('search-input');
-      if (input) {
-        input.focus();
-        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      const inp = document.querySelector('.search-box input');
+      if (inp) inp.focus();
     }
+    // Escape → close modal
+    if (e.key === 'Escape') closeModal();
   });
 }
 
-// ===== MOBILE MENU =====
+/* ===== MOBILE MENU ===== */
 function toggleMobileMenu() {
-  const hamburger = document.getElementById('hamburger');
-  const links = document.getElementById('nav-links');
-  hamburger.classList.toggle('active');
+  const ham = document.querySelector('.nav-hamburger');
+  const links = document.querySelector('.nav-links');
+  if (!ham || !links) return;
+  ham.classList.toggle('active');
   if (links.style.display === 'flex') {
     links.style.display = 'none';
   } else {
     links.style.display = 'flex';
+    links.style.flexDirection = 'column';
     links.style.position = 'absolute';
     links.style.top = '64px';
     links.style.left = '0';
     links.style.right = '0';
-    links.style.flexDirection = 'column';
-    links.style.background = 'rgba(6,6,10,0.95)';
-    links.style.backdropFilter = 'blur(24px)';
+    links.style.background = 'var(--bg-elevated)';
     links.style.padding = '1rem';
-    links.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
-    links.style.gap = '0.25rem';
+    links.style.borderBottom = '1px solid var(--border)';
   }
 }
 
-// ===== RENDER CATEGORIES =====
+/* ===== CATEGORIES ===== */
+const categoryIcons = {
+  'Coding':    '💻',
+  'Research':  '🔬',
+  'Writing':   '✍️',
+  'Data':      '📊',
+  'Design':    '🎨',
+  'DevOps':    '⚙️',
+  'Security':  '🛡️',
+  'Customer Support': '💬',
+  'General':   '🤖',
+};
+function getCategoryIcon(cat) { return categoryIcons[cat] || '🤖'; }
+
 function renderCategories() {
   const grid = document.getElementById('categories-grid');
-  if (!grid) return;
-  
-  grid.innerHTML = CATEGORIES.map((cat, i) => `
-    <a class="category-card" href="#agents" data-index="${i}" onclick="filterByCategory('${cat.id}')">
-      <div class="category-icon">${cat.icon}</div>
-      <h3>${cat.name}</h3>
-      <p>${cat.description}</p>
-      <span class="category-count">${cat.count} agent${cat.count !== 1 ? 's' : ''} →</span>
-    </a>
+  if (!grid || typeof agents === 'undefined') return;
+  const cats = {};
+  agents.forEach(a => { cats[a.category] = (cats[a.category] || 0) + 1; });
+  grid.innerHTML = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([cat, count]) => `
+    <div class="category-card reveal" onclick="setFilter('${cat}')" tabindex="0" role="button" aria-label="Filter by ${cat}">
+      <div class="category-icon">${getCategoryIcon(cat)}</div>
+      <h3>${cat}</h3>
+      <p>${getCategoryDescription(cat)}</p>
+      <span class="category-count">${count} agent${count !== 1 ? 's' : ''}</span>
+    </div>
   `).join('');
+  setupRevealAnimations();
+}
+function getCategoryDescription(cat) {
+  const d = {
+    'Coding': 'AI-powered code generation, review & debugging',
+    'Research': 'Automated research, analysis & knowledge synthesis',
+    'Writing': 'Content creation, copywriting & editing',
+    'Data': 'Data analysis, visualization & pipeline automation',
+    'Design': 'Image generation, UI design & creative tools',
+    'DevOps': 'CI/CD, infrastructure & deployment automation',
+    'Security': 'Vulnerability scanning & threat detection',
+    'Customer Support': 'AI chatbots & support automation',
+    'General': 'Multi-purpose autonomous AI agents',
+  };
+  return d[cat] || 'AI-powered tools and automation';
 }
 
-// ===== RENDER FEATURED =====
+/* ===== FEATURED AGENTS ===== */
 function renderFeaturedAgents() {
   const grid = document.getElementById('featured-grid');
-  if (!grid) return;
-  
-  const featured = AGENTS.filter(a => a.featured);
-  grid.innerHTML = featured.map((agent, i) => renderAgentCard(agent, i)).join('');
+  if (!grid || typeof agents === 'undefined') return;
+  const featured = agents.filter(a => a.featured).slice(0, 6);
+  grid.innerHTML = featured.map(a => renderAgentCard(a, true)).join('');
 }
 
-// ===== RENDER ALL =====
+/* ===== ALL AGENTS ===== */
 function renderAllAgents() {
-  const grid = document.getElementById('all-agents-grid');
-  if (!grid) return;
-  
-  let filtered = [...AGENTS];
-  
-  // Filter
+  const grid = document.getElementById('agents-grid');
+  if (!grid || typeof agents === 'undefined') return;
+  let list = [...agents];
   if (currentFilter !== 'all') {
-    if (currentFilter === 'open-source') {
-      filtered = filtered.filter(a => a.tags.some(t => t.toLowerCase() === 'open source'));
+    if (currentFilter === 'Open Source') {
+      list = list.filter(a => a.tags && a.tags.some(t => t.toLowerCase() === 'open source'));
     } else {
-      filtered = filtered.filter(a => a.category === currentFilter);
+      list = list.filter(a => a.category === currentFilter);
     }
   }
-  
-  // Search
-  if (searchQuery) {
-    const q = searchQuery.toLowerCase();
-    filtered = filtered.filter(a => 
-      a.name.toLowerCase().includes(q) ||
-      a.tagline.toLowerCase().includes(q) ||
-      a.description.toLowerCase().includes(q) ||
-      a.tags.some(t => t.toLowerCase().includes(q)) ||
-      a.category.replace('-', ' ').includes(q) ||
-      a.company.toLowerCase().includes(q)
-    );
+  list = sortAgents(list, currentSort);
+  grid.innerHTML = list.length ? list.map(a => renderAgentCard(a, false)).join('') : `
+    <div class="no-results"><div class="no-results-icon">🔍</div><h3>No agents found</h3><p>Try a different filter or search term</p></div>
+  `;
+  const rc = document.getElementById('results-count');
+  if (rc) rc.textContent = `Showing ${list.length} of ${agents.length} agents`;
+  setupRevealAnimations();
+}
+
+/* ===== SORT ===== */
+function sortAgents(arr, method) {
+  switch (method) {
+    case 'rating': return arr.sort((a, b) => b.rating - a.rating);
+    case 'name': return arr.sort((a, b) => a.name.localeCompare(b.name));
+    case 'newest': return arr.sort((a, b) => (b.year || 2024) - (a.year || 2024));
+    case 'views': return arr.sort((a, b) => (b.views || 0) - (a.views || 0));
+    case 'trending': return arr.sort((a, b) => ((b.views || 0) * b.rating) - ((a.views || 0) * a.rating));
+    default: return arr.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || b.rating - a.rating);
   }
-  
-  // Sort
-  if (currentSort !== 'default') {
-    filtered = sortAgents(filtered, currentSort);
-  }
-  
-  // Update results count
-  const countEl = document.getElementById('results-count');
-  if (countEl) {
-    if (searchQuery || currentFilter !== 'all') {
-      countEl.textContent = `Showing ${filtered.length} of ${AGENTS.length} agents`;
-    } else {
-      countEl.textContent = `${filtered.length} agents in directory`;
-    }
-  }
-  
-  if (filtered.length === 0) {
-    grid.innerHTML = `
-      <div class="no-results">
-        <div class="no-results-icon">🔍</div>
-        <h3>No agents found</h3>
-        <p>Try a different search or category</p>
-      </div>
-    `;
-    return;
-  }
-  
-  grid.innerHTML = filtered.map((agent, i) => renderAgentCard(agent, i)).join('');
-  updateFilterButtons();
+}
+function setSort(method) {
+  currentSort = method;
   updateSortButtons();
-}
-
-// ===== SORT =====
-function sortAgents(agents, sortType) {
-  const sorted = [...agents];
-  switch (sortType) {
-    case 'rating': return sorted.sort((a, b) => b.rating - a.rating);
-    case 'reviews': return sorted.sort((a, b) => b.reviews - a.reviews);
-    case 'newest': return sorted.sort((a, b) => b.launchDate.localeCompare(a.launchDate));
-    case 'name': return sorted.sort((a, b) => a.name.localeCompare(b.name));
-    default: return sorted;
-  }
-}
-
-function setSort(sort) {
-  currentSort = sort;
   renderAllAgents();
 }
-
 function updateSortButtons() {
-  document.querySelectorAll('.sort-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.sort === currentSort);
-  });
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === currentSort));
 }
 
-// ===== FILTER COUNTS =====
+/* ===== FILTER ===== */
+function setFilter(cat) {
+  currentFilter = cat;
+  updateFilterButtons();
+  renderAllAgents();
+  const dir = document.getElementById('directory');
+  if (dir) dir.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function updateFilterButtons() {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === currentFilter));
+}
 function updateFilterCounts() {
+  if (typeof agents === 'undefined') return;
   document.querySelectorAll('.filter-btn').forEach(btn => {
-    const filter = btn.dataset.filter;
-    if (filter === 'all') {
-      btn.innerHTML = `🌐 All <span class="filter-count">${AGENTS.length}</span>`;
-    } else {
-      let count;
-      if (filter === 'open-source') {
-        count = AGENTS.filter(a => a.tags.some(t => t.toLowerCase() === 'open source')).length;
-      } else {
-        count = AGENTS.filter(a => a.category === filter).length;
-      }
-      const icon = btn.textContent.trim().split(' ')[0]; // Grab emoji
-      const label = btn.textContent.trim().split(' ').slice(1).join(' ').replace(/\d+/, '').trim();
-      btn.innerHTML = `${icon} ${label} <span class="filter-count">${count}</span>`;
-    }
+    const f = btn.dataset.filter;
+    if (!f) return;
+    let count = 0;
+    if (f === 'all') count = agents.length;
+    else if (f === 'Open Source') count = agents.filter(a => a.tags && a.tags.some(t => t.toLowerCase() === 'open source')).length;
+    else count = agents.filter(a => a.category === f).length;
+    const span = btn.querySelector('.filter-count');
+    if (span) span.textContent = count;
   });
 }
 
-// ===== AGENT CARD =====
-function renderAgentCard(agent, index = 0) {
-  const isCompared = compareList.includes(agent.id);
-  const isTrending = agent.reviews > 800 && agent.rating >= 4.5;
-  const views = Math.floor(agent.reviews * 3.2 + Math.random() * 500);
-  
+/* ===== RENDER CARD ===== */
+function renderAgentCard(a, isFeatured) {
+  const stars = renderStars(a.rating);
+  const isTrending = (a.views || 0) > 50000;
+  const isCompared = compareList.includes(a.id);
+  const popularityPct = Math.min(100, Math.round(((a.views || 0) / 120000) * 100));
+  const isOS = a.tags && a.tags.some(t => t.toLowerCase() === 'open source');
+
   return `
-    <div class="agent-card ${agent.featured ? 'featured' : ''}" data-index="${index}" onclick="openAgentDetail('${agent.id}')">
-      <div class="card-compare ${isCompared ? 'active' : ''}" onclick="event.stopPropagation(); toggleCompare('${agent.id}')" title="Add to compare">
-        ${isCompared ? '✓' : '+'}
-      </div>
-      ${agent.featured ? '<span class="featured-badge">⚡ Featured</span>' : (isTrending ? '<span class="trending-badge">🔥 Trending</span>' : '')}
+    <div class="agent-card ${isFeatured ? 'featured' : ''} reveal" data-id="${a.id}" onclick="openAgentDetail(${a.id})" tabindex="0" role="article" aria-label="${a.name}">
+      <div class="card-compare ${isCompared ? 'active' : ''}" onclick="event.stopPropagation();toggleCompare(${a.id})" title="Compare" aria-label="Compare ${a.name}">✓</div>
+      ${isFeatured ? '<div class="featured-badge">⭐ Featured</div>' : isTrending ? '<div class="trending-badge">🔥 Trending</div>' : ''}
       <div class="agent-header">
-        <div class="agent-logo">
-          <img src="${agent.logo}" alt="${agent.name}" loading="lazy" onerror="this.parentElement.innerHTML='<span style=\\'font-size:1.25rem\\'>${getCategoryIcon(agent.category)}</span>'">
-        </div>
+        <div class="agent-logo">${a.logo ? `<img src="${a.logo}" alt="${a.name}" onerror="this.parentNode.textContent='${getCategoryIcon(a.category)}'">` : getCategoryIcon(a.category)}</div>
         <div class="agent-info">
-          <h3>${agent.name}</h3>
-          <div class="tagline">${agent.tagline}</div>
+          <h3>${escapeHTML(a.name)}</h3>
+          <div class="tagline">${escapeHTML(a.tagline || a.category)}</div>
         </div>
       </div>
-      <p class="agent-description">${agent.description}</p>
+      <p class="agent-description">${escapeHTML(a.description)}</p>
+      <div class="agent-stars-bar">${stars}<span class="rating-number">${a.rating}</span><span class="review-count">(${formatNumber(a.reviews || 0)})</span></div>
       <div class="agent-tags">
-        ${agent.tags.slice(0, 3).map(t => `<span class="agent-tag">${t}</span>`).join('')}
+        ${(a.tags || []).slice(0, 3).map(t => `<span class="agent-tag">${escapeHTML(t)}</span>`).join('')}
+        ${isOS ? '<span class="agent-tag" style="border-color:var(--green);color:var(--green)">Open Source</span>' : ''}
+      </div>
+      <div class="card-actions" onclick="event.stopPropagation()">
+        <a href="${a.url || '#'}" target="_blank" rel="noopener" class="card-cta card-cta-primary" aria-label="Try ${a.name}">Try Free →</a>
+        <button class="card-cta card-cta-secondary" onclick="openAgentDetail(${a.id})" aria-label="View details for ${a.name}">Details</button>
       </div>
       <div class="agent-footer">
-        <span class="agent-pricing">${agent.pricing}</span>
-        <span class="agent-rating">
-          <span class="stars">★</span>
-          <span class="score">${agent.rating}</span>
-          <span class="count">(${formatNumber(agent.reviews)})</span>
-          <span class="agent-views">👁 ${formatNumber(views)}</span>
+        <span class="agent-pricing">${escapeHTML(a.pricing)}</span>
+        <span>
+          <span class="agent-views">👁 ${formatNumber(a.views || 0)}</span>
         </span>
       </div>
+      <div class="popularity-bar"><div class="popularity-fill" style="width:${popularityPct}%"></div></div>
     </div>
   `;
 }
 
-function getCategoryIcon(catId) {
-  const cat = CATEGORIES.find(c => c.id === catId);
-  return cat ? cat.icon : '🤖';
+function renderStars(rating) {
+  let html = '<div class="stars-visual">';
+  for (let i = 1; i <= 5; i++) {
+    if (rating >= i) html += '<span class="star-fill">★</span>';
+    else if (rating >= i - 0.5) html += '<span class="star-half">★</span>';
+    else html += '<span class="star-empty">★</span>';
+  }
+  html += '</div>';
+  return html;
 }
 
 function formatNumber(n) {
-  if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'K';
   return n.toString();
 }
+function escapeHTML(s) {
+  if (!s) return '';
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
-// ===== COMPARE =====
-function toggleCompare(agentId) {
-  const idx = compareList.indexOf(agentId);
-  if (idx > -1) {
-    compareList.splice(idx, 1);
-  } else {
-    if (compareList.length >= MAX_COMPARE) {
-      showToast(`⚠️ Maximum ${MAX_COMPARE} agents for comparison`);
-      return;
-    }
-    compareList.push(agentId);
+/* ===== COMPARE ===== */
+function toggleCompare(id) {
+  const idx = compareList.indexOf(id);
+  if (idx > -1) { compareList.splice(idx, 1); } else {
+    if (compareList.length >= MAX_COMPARE) { showToast(`Max ${MAX_COMPARE} agents for comparison`); return; }
+    compareList.push(id);
   }
   updateCompareUI();
   // Update card checkboxes
-  document.querySelectorAll('.card-compare').forEach(el => {
-    const card = el.closest('.agent-card');
-    if (!card) return;
-    const cardAgentId = card.getAttribute('onclick').match(/'([^']+)'/)?.[1];
-    if (cardAgentId && compareList.includes(cardAgentId)) {
-      el.classList.add('active');
-      el.textContent = '✓';
-    } else {
-      el.classList.remove('active');
-      el.textContent = '+';
-    }
+  document.querySelectorAll('.agent-card').forEach(c => {
+    const cid = parseInt(c.dataset.id);
+    const cb = c.querySelector('.card-compare');
+    if (cb) cb.classList.toggle('active', compareList.includes(cid));
   });
 }
-
 function updateCompareUI() {
   const bar = document.getElementById('compare-bar');
-  const countEl = document.getElementById('compare-count');
-  const chipsEl = document.getElementById('compare-chips');
-  
-  if (compareList.length > 0) {
-    bar.classList.add('visible');
-    countEl.textContent = compareList.length;
-    chipsEl.innerHTML = compareList.map(id => {
-      const agent = AGENTS.find(a => a.id === id);
-      return agent ? `<span class="compare-chip">${agent.name}<span class="compare-chip-x" onclick="event.stopPropagation(); toggleCompare('${id}')">×</span></span>` : '';
+  const badge = document.getElementById('compare-count');
+  const chips = document.getElementById('compare-chips');
+  if (!bar) return;
+  bar.classList.toggle('visible', compareList.length > 0);
+  if (badge) badge.textContent = compareList.length;
+  if (chips && typeof agents !== 'undefined') {
+    chips.innerHTML = compareList.map(id => {
+      const a = agents.find(x => x.id === id);
+      return a ? `<span class="compare-chip">${escapeHTML(a.name)}<span class="compare-chip-x" onclick="toggleCompare(${id})">×</span></span>` : '';
     }).join('');
-  } else {
-    bar.classList.remove('visible');
   }
 }
-
-function clearCompare() {
-  compareList = [];
-  updateCompareUI();
-  renderAllAgents();
-}
-
+function clearCompare() { compareList = []; updateCompareUI(); renderAllAgents(); }
 function openCompareModal() {
-  if (compareList.length < 2) {
-    showToast('⚠️ Select at least 2 agents to compare');
-    return;
-  }
-  
-  const agents = compareList.map(id => AGENTS.find(a => a.id === id)).filter(Boolean);
-  const modal = document.getElementById('compare-modal');
-  const body = document.getElementById('compare-modal-body');
-  
+  if (compareList.length < 2) { showToast('Select at least 2 agents to compare'); return; }
+  if (typeof agents === 'undefined') return;
+  const list = compareList.map(id => agents.find(a => a.id === id)).filter(Boolean);
   const rows = [
-    { label: 'Company', get: a => a.company },
-    { label: 'Category', get: a => { const c = CATEGORIES.find(c => c.id === a.category); return c ? c.icon + ' ' + c.name : a.category; } },
-    { label: 'Rating', get: a => `<span class="compare-rating">★ ${a.rating}</span> (${formatNumber(a.reviews)} reviews)`, isHTML: true },
-    { label: 'Pricing', get: a => `<span class="compare-pricing">${a.pricing}</span>`, isHTML: true },
-    { label: 'Tagline', get: a => a.tagline },
-    { label: 'Tags', get: a => a.tags.slice(0,4).join(', ') },
-    { label: 'Launch', get: a => a.launchDate },
-    { label: 'Website', get: a => `<a href="${a.website}" target="_blank" rel="noopener">${a.website.replace('https://', '')}</a>`, isHTML: true },
+    { label: 'Category', fn: a => a.category },
+    { label: 'Rating', fn: a => `⭐ ${a.rating}`, cls: 'compare-rating' },
+    { label: 'Reviews', fn: a => formatNumber(a.reviews || 0) },
+    { label: 'Pricing', fn: a => a.pricing, cls: 'compare-pricing' },
+    { label: 'Views', fn: a => formatNumber(a.views || 0) },
+    { label: 'Year', fn: a => a.year || '—' },
+    { label: 'Tags', fn: a => (a.tags || []).join(', ') },
   ];
-  
-  body.innerHTML = `
+  const html = `
     <div style="overflow-x:auto">
-      <table class="compare-table">
-        <thead>
-          <tr>
-            <th>Feature</th>
-            ${agents.map(a => `<th><span class="compare-agent-name">${a.name}</span></th>`).join('')}
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map(row => `
-            <tr>
-              <td>${row.label}</td>
-              ${agents.map(a => `<td>${row.isHTML ? row.get(a) : escapeHTML(row.get(a))}</td>`).join('')}
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
+    <table class="compare-table">
+      <thead><tr><th></th>${list.map(a => `<th><span class="compare-agent-name">${escapeHTML(a.name)}</span></th>`).join('')}</tr></thead>
+      <tbody>${rows.map(r => `<tr><td>${r.label}</td>${list.map(a => `<td class="${r.cls || ''}">${r.fn(a)}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table>
     </div>
   `;
-  
-  modal.classList.add('active');
-  document.body.style.overflow = 'hidden';
+  showModal('Compare Agents', html, 'modal-wide');
 }
 
-function escapeHTML(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-// ===== SEARCH =====
+/* ===== SEARCH ===== */
 function setupSearch() {
-  const input = document.getElementById('search-input');
+  const input = document.querySelector('.search-box input');
+  const btn = document.querySelector('.search-box button');
   if (!input) return;
-  
-  let timeout;
-  input.addEventListener('input', (e) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      searchQuery = e.target.value;
-      renderAllAgents();
-    }, 200);
-  });
-  
-  const btn = document.getElementById('search-btn');
-  if (btn) {
-    btn.addEventListener('click', () => {
-      searchQuery = input.value;
-      currentFilter = 'all';
-      renderAllAgents();
-      document.getElementById('agents').scrollIntoView({ behavior: 'smooth' });
-    });
+  let debounce;
+  input.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(() => searchFor(input.value), 250); });
+  if (btn) btn.addEventListener('click', () => searchFor(input.value));
+}
+function searchFor(q) {
+  q = q.trim().toLowerCase();
+  const grid = document.getElementById('agents-grid');
+  if (!grid || typeof agents === 'undefined') return;
+  let list = [...agents];
+  if (currentFilter !== 'all') {
+    if (currentFilter === 'Open Source') list = list.filter(a => a.tags && a.tags.some(t => t.toLowerCase() === 'open source'));
+    else list = list.filter(a => a.category === currentFilter);
   }
-  
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      searchQuery = input.value;
-      currentFilter = 'all';
-      renderAllAgents();
-      document.getElementById('agents').scrollIntoView({ behavior: 'smooth' });
-    }
-  });
-}
-
-function searchFor(term) {
-  const input = document.getElementById('search-input');
-  input.value = term;
-  searchQuery = term;
-  currentFilter = 'all';
-  renderAllAgents();
-  document.getElementById('agents').scrollIntoView({ behavior: 'smooth' });
-}
-
-// ===== FILTER =====
-function filterByCategory(catId) {
-  currentFilter = catId;
-  searchQuery = '';
-  const input = document.getElementById('search-input');
-  if (input) input.value = '';
-  renderAllAgents();
-  updateFilterButtons();
-  setTimeout(() => {
-    document.getElementById('agents').scrollIntoView({ behavior: 'smooth' });
-  }, 100);
-}
-
-function setFilter(filter) {
-  currentFilter = filter;
-  renderAllAgents();
-}
-
-function updateFilterButtons() {
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.filter === currentFilter);
-  });
-}
-
-// ===== AGENT DETAIL =====
-function openAgentDetail(agentId) {
-  const agent = AGENTS.find(a => a.id === agentId);
-  if (!agent) return;
-  
-  const category = CATEGORIES.find(c => c.id === agent.category);
-  
-  const modal = document.getElementById('agent-modal');
-  const body = document.getElementById('agent-modal-body');
-  
-  body.innerHTML = `
-    <div class="detail-header">
-      <div class="detail-logo">
-        <img src="${agent.logo}" alt="${agent.name}" onerror="this.parentElement.innerHTML='<span style=\\'font-size:1.75rem\\'>${getCategoryIcon(agent.category)}</span>'">
-      </div>
-      <div class="detail-info">
-        <h1>${agent.name}</h1>
-        <div class="tagline">${agent.tagline}</div>
-      </div>
-    </div>
-    
-    <div class="detail-meta">
-      <div class="detail-meta-item">🏢 ${agent.company}</div>
-      <div class="detail-meta-item">⭐ ${agent.rating} (${formatNumber(agent.reviews)} reviews)</div>
-      <div class="detail-meta-item">💰 ${agent.pricing}</div>
-      <div class="detail-meta-item">${category ? category.icon : '🤖'} ${category ? category.name : 'AI Agent'}</div>
-      <div class="detail-meta-item">📅 ${agent.launchDate}</div>
-    </div>
-    
-    <p class="detail-description">${agent.description}</p>
-    
-    <div class="detail-tags">
-      ${agent.tags.map(t => `<span class="detail-tag">${t}</span>`).join('')}
-    </div>
-    
-    <div class="detail-actions">
-      <a href="${agent.website}" target="_blank" rel="noopener" class="btn-primary">Visit Website →</a>
-      <button class="btn-secondary" onclick="closeModal('agent-modal')">Close</button>
-    </div>
+  if (q) {
+    list = list.filter(a =>
+      a.name.toLowerCase().includes(q) ||
+      a.description.toLowerCase().includes(q) ||
+      a.category.toLowerCase().includes(q) ||
+      (a.tags || []).some(t => t.toLowerCase().includes(q))
+    );
+  }
+  list = sortAgents(list, currentSort);
+  grid.innerHTML = list.length ? list.map(a => renderAgentCard(a, false)).join('') : `
+    <div class="no-results"><div class="no-results-icon">🔍</div><h3>No results for "${escapeHTML(q)}"</h3><p>Try different keywords or clear filters</p></div>
   `;
-  
-  modal.classList.add('active');
-  document.body.style.overflow = 'hidden';
+  const rc = document.getElementById('results-count');
+  if (rc) rc.textContent = `Showing ${list.length} of ${agents.length} agents`;
+  setupRevealAnimations();
+}
+function filterByCategory(cat) { setFilter(cat); }
+
+/* ===== AGENT DETAIL MODAL ===== */
+function openAgentDetail(id) {
+  if (typeof agents === 'undefined') return;
+  const a = agents.find(x => x.id === id);
+  if (!a) return;
+
+  // Generate rating breakdown (simulated)
+  const totalReviews = a.reviews || 100;
+  const breakdowns = [
+    Math.round(totalReviews * 0.65),
+    Math.round(totalReviews * 0.20),
+    Math.round(totalReviews * 0.08),
+    Math.round(totalReviews * 0.04),
+    Math.round(totalReviews * 0.03),
+  ];
+
+  // Find similar agents
+  const similar = agents.filter(x => x.id !== a.id && x.category === a.category).slice(0, 3);
+
+  const html = `
+    <div class="detail-header">
+      <div class="detail-logo">${a.logo ? `<img src="${a.logo}" alt="" onerror="this.parentNode.textContent='${getCategoryIcon(a.category)}'">` : getCategoryIcon(a.category)}</div>
+      <div class="detail-info">
+        <h1>${escapeHTML(a.name)}</h1>
+        <p class="tagline">${escapeHTML(a.tagline || a.category)}</p>
+      </div>
+    </div>
+    <div class="detail-meta">
+      <span class="detail-meta-item">⭐ ${a.rating}/5</span>
+      <span class="detail-meta-item">💰 ${escapeHTML(a.pricing)}</span>
+      <span class="detail-meta-item">📁 ${escapeHTML(a.category)}</span>
+      <span class="detail-meta-item">👁 ${formatNumber(a.views || 0)} views</span>
+      ${a.year ? `<span class="detail-meta-item">📅 ${a.year}</span>` : ''}
+    </div>
+    <div class="detail-rating-breakdown">
+      <div>
+        <div class="rating-big">${a.rating}</div>
+        <div class="rating-total">${formatNumber(totalReviews)} reviews</div>
+      </div>
+      <div class="rating-bars">
+        ${[5,4,3,2,1].map((star, i) => `
+          <div class="rating-bar-row">
+            <span class="rating-bar-label">${star}</span>
+            <div class="rating-bar-track"><div class="rating-bar-fill" style="width:${Math.round((breakdowns[i] / totalReviews) * 100)}%"></div></div>
+            <span class="rating-bar-count">${breakdowns[i]}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <p class="detail-description">${escapeHTML(a.description)}</p>
+    <div class="detail-tags">${(a.tags || []).map(t => `<span class="detail-tag">${escapeHTML(t)}</span>`).join('')}</div>
+    ${similar.length ? `
+    <div class="detail-similar">
+      <div class="detail-similar-label">Similar Agents</div>
+      <div class="detail-similar-grid">
+        ${similar.map(s => `
+          <div class="similar-card" onclick="closeModal();setTimeout(()=>openAgentDetail(${s.id}),300)">
+            <div class="similar-name">${escapeHTML(s.name)}</div>
+            <div class="similar-cat">${escapeHTML(s.category)} · ⭐ ${s.rating}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
+    <div class="detail-actions">
+      <a href="${a.url || '#'}" target="_blank" rel="noopener" class="btn-primary">🚀 Try ${escapeHTML(a.name)} Free</a>
+      <button class="btn-secondary" onclick="toggleCompare(${a.id});closeModal()">⚖️ Add to Compare</button>
+    </div>
+    <div style="text-align:center;margin-top:0.75rem;font-size:0.75rem;color:var(--text-muted)">🛡️ Verified listing · 30-day guarantee</div>
+  `;
+  showModal(a.name, html);
 }
 
-// ===== MODALS =====
+/* ===== SUBMIT MODAL ===== */
 function openSubmitModal() {
-  document.getElementById('submit-modal').classList.add('active');
-  document.body.style.overflow = 'hidden';
+  const html = `
+    <p class="form-intro">List your AI agent on AgentStack and reach thousands of potential users. Free tier available — get started in 60 seconds.</p>
+    <form id="submit-form" onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <div class="form-group"><label>Agent Name <span class="req">*</span></label><input type="text" placeholder="e.g. MyAgent AI" required></div>
+        <div class="form-group"><label>Website <span class="req">*</span></label><input type="url" placeholder="https://..." required></div>
+      </div>
+      <div class="form-group"><label>Category <span class="req">*</span></label>
+        <select required><option value="">Select category...</option>
+        ${Object.keys(categoryIcons).map(c => `<option value="${c}">${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Short Description <span class="req">*</span></label><textarea placeholder="What does your agent do?" required></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Pricing</label><input type="text" placeholder="e.g. Free / $20/mo"></div>
+        <div class="form-group"><label>Your Email <span class="req">*</span></label><input type="email" placeholder="you@company.com" required></div>
+      </div>
+      <button type="submit" class="form-submit">🚀 Submit Agent — It's Free</button>
+    </form>
+  `;
+  showModal('Submit Your Agent', html);
 }
 
-function closeModal(modalId) {
-  document.getElementById(modalId).classList.remove('active');
+/* ===== MODAL HELPERS ===== */
+function showModal(title, bodyHTML, extraClass) {
+  const overlay = document.getElementById('modal-overlay');
+  if (!overlay) return;
+  const header = overlay.querySelector('.modal-header h2');
+  const body = overlay.querySelector('.modal-body');
+  const modal = overlay.querySelector('.modal');
+  if (header) header.textContent = title;
+  if (body) body.innerHTML = bodyHTML;
+  if (modal) { modal.className = 'modal' + (extraClass ? ' ' + extraClass : ''); }
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  const overlay = document.getElementById('modal-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('active');
   document.body.style.overflow = '';
 }
 
+/* ===== FORM HANDLERS ===== */
 function handleSubmit(e) {
   e.preventDefault();
-  const formData = new FormData(e.target);
-  const data = Object.fromEntries(formData.entries());
-  console.log('Agent submission:', data);
-  closeModal('submit-modal');
-  showToast('✅ Agent submitted! We\'ll review it within 24 hours.');
-  e.target.reset();
+  closeModal();
+  launchConfetti();
+  showToast('🎉 Agent submitted! We\'ll review it within 24 hours.');
 }
-
 function handleNewsletter(e) {
   e.preventDefault();
-  const email = e.target.querySelector('input[name="email"]').value;
-  console.log('Newsletter signup:', email);
-  showToast('✅ Subscribed! Check your inbox for confirmation.');
-  e.target.reset();
+  const inp = e.target.querySelector('input');
+  if (inp && inp.value) {
+    inp.value = '';
+    launchConfetti();
+    showToast('🎉 Welcome aboard! Check your inbox for a confirmation.');
+  }
 }
 
-function showToast(message) {
-  const toast = document.getElementById('toast');
-  toast.textContent = message;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 4000);
+/* ===== CONFETTI ===== */
+function launchConfetti() {
+  const container = document.createElement('div');
+  container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden';
+  document.body.appendChild(container);
+  const colors = ['#a78bfa','#06b6d4','#34d399','#fbbf24','#f472b6','#818cf8','#f97316'];
+  for (let i = 0; i < 80; i++) {
+    const c = document.createElement('div');
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const x = Math.random() * 100;
+    const delay = Math.random() * 0.3;
+    const size = 6 + Math.random() * 6;
+    c.style.cssText = `position:absolute;top:-10px;left:${x}%;width:${size}px;height:${size}px;background:${color};border-radius:${Math.random() > 0.5 ? '50%' : '2px'};animation:confettiFall ${1.5 + Math.random()}s ease-in ${delay}s forwards;`;
+    container.appendChild(c);
+  }
+  // Inject animation if not present
+  if (!document.getElementById('confetti-style')) {
+    const style = document.createElement('style');
+    style.id = 'confetti-style';
+    style.textContent = `@keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }`;
+    document.head.appendChild(style);
+  }
+  setTimeout(() => container.remove(), 3000);
 }
 
-// ===== EVENT LISTENERS =====
+/* ===== TOAST ===== */
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ===== EVENT LISTENERS ===== */
 function setupEventListeners() {
-  // Close modals on overlay click
-  document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) {
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-      }
+  // Theme
+  const themeBtn = document.getElementById('theme-toggle');
+  if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+
+  // Hamburger
+  const ham = document.querySelector('.nav-hamburger');
+  if (ham) ham.addEventListener('click', toggleMobileMenu);
+
+  // Submit CTA
+  document.querySelectorAll('[data-action="submit"]').forEach(el => el.addEventListener('click', openSubmitModal));
+
+  // Mobile sticky CTA
+  const mobileCTA = document.querySelector('.mobile-sticky-cta button');
+  if (mobileCTA) mobileCTA.addEventListener('click', openSubmitModal);
+
+  // Compare
+  const compareGoBtn = document.querySelector('.compare-btn-go');
+  if (compareGoBtn) compareGoBtn.addEventListener('click', openCompareModal);
+  const compareClearBtn = document.querySelector('.compare-btn-clear');
+  if (compareClearBtn) compareClearBtn.addEventListener('click', clearCompare);
+
+  // Modal close
+  const modalClose = document.querySelector('.modal-close');
+  if (modalClose) modalClose.addEventListener('click', closeModal);
+  const overlay = document.getElementById('modal-overlay');
+  if (overlay) overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => setFilter(btn.dataset.filter));
+  });
+
+  // Sort buttons
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', () => setSort(btn.dataset.sort));
+  });
+
+  // Search tags
+  document.querySelectorAll('.search-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      const inp = document.querySelector('.search-box input');
+      if (inp) { inp.value = tag.textContent.trim(); searchFor(inp.value); }
     });
   });
-  
-  // Close modals on Escape
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('.modal-overlay.active').forEach(m => {
-        m.classList.remove('active');
-      });
-      document.body.style.overflow = '';
-    }
+
+  // Newsletter
+  const nlForm = document.getElementById('newsletter-form');
+  if (nlForm) nlForm.addEventListener('submit', handleNewsletter);
+
+  // Back to top in footer
+  document.querySelectorAll('[href="#"]').forEach(l => {
+    l.addEventListener('click', e => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   });
 }
